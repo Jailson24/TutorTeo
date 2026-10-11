@@ -1,25 +1,16 @@
 const Groq = require("groq-sdk");
 const Fuse = require("fuse.js");
-const fs = require("fs");
-const path = require("path");
 
-// 1. Carrega a base de dados (Vercel recomenda usar process.cwd() na raiz)
-// Como o ficheiro base-de-dados.json está na mesma pasta raiz do projeto que o package.json:
-const dbPath = path.join(process.cwd(), "base-de-dados.json");
-
+// 1. O "require" força a Vercel a empacotar o arquivo JSON junto com a API.
 let baseDeDados = [];
 try {
-  if (fs.existsSync(dbPath)) {
-    const fileContent = fs.readFileSync(dbPath, "utf-8");
-    baseDeDados = JSON.parse(fileContent);
-    console.log(`SUCESSO: Base de dados carregada com ${baseDeDados.length} blocos.`);
-  } else {
-    console.error("ERRO CRÍTICO: Arquivo base-de-dados.json NÃO FOI ENCONTRADO no caminho:", dbPath);
-  }
+  baseDeDados = require("../base-de-dados.json");
+  console.log(`SUCESSO: Base de dados carregada com ${baseDeDados.length} blocos.`);
 } catch (error) {
-  console.error("ERRO ao ler o arquivo base-de-dados.json:", error);
+  console.error("ERRO CRÍTICO: Não foi possível ler o base-de-dados.json", error);
 }
 
+// 2. Configura o buscador
 const buscador = new Fuse(baseDeDados, {
   keys: ["texto"],
   includeScore: true,
@@ -65,7 +56,7 @@ module.exports = async function handler(req, res) {
     }
 
     if (validMessages.length === 0 || validMessages[validMessages.length - 1].role !== "user") {
-      return res.status(400).json({ error: "A última mensagem precisa ser uma pergunta do aluno." });
+      return res.status(400).json({ error: "A última mensagem precisa ser uma pergunta." });
     }
 
     // Procura na apostila os trechos relevantes
@@ -82,9 +73,9 @@ module.exports = async function handler(req, res) {
 
     const groq = new Groq({ apiKey });
     
-    // Chama a API da Groq usando um modelo comprovadamente ativo
+    // Chama a API da Groq usando o modelo correto e ativo
     const completion = await groq.chat.completions.create({
-      model: "llama3-70b-8192", // Modelo poderoso e ativo
+      model: "mixtral-8x7b-32768", 
       messages: [
         { role: "system", content: promptFinal },
         ...validMessages
@@ -99,16 +90,9 @@ module.exports = async function handler(req, res) {
       return res.status(502).json({ error: "O Tutor Teo não conseguiu gerar uma resposta." });
     }
 
-    // Devolve a resposta com sucesso
     return res.status(200).json({ resposta });
 
   } catch (error) {
-    // Registo de erros da Groq com detalhes precisos
-    if (error.error?.error?.code === "model_not_found") {
-       console.error("ERRO DA GROQ: Modelo não encontrado ou sem acesso. Verifique o nome do modelo.");
-       return res.status(502).json({ error: "Erro de modelo na IA. Contacte o administrador." });
-    }
-    
     console.error("Erro interno na API (Catch):", error);
     return res.status(502).json({ error: "Falha na conexão com a IA. Tente novamente." });
   }
