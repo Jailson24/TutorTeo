@@ -23,7 +23,6 @@ export default async function handler(req, res) {
     const body = req.body;
     let messages;
 
-    // Compatibilidade com o formato antigo { prompt: "..." } e com o novo { messages: [...] }.
     if (typeof body?.prompt === "string") {
       messages = [{ role: "user", content: body.prompt }];
     } else if (Array.isArray(body?.messages)) {
@@ -71,7 +70,6 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ resposta });
   } catch (error) {
-    // O log detalhado fica no servidor; a resposta pública não expõe dados internos.
     console.error("Erro na API do Tutor Teo:", {
       status: error?.status,
       code: error?.code,

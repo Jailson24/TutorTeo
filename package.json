@@ -4,6 +4,9 @@
   "private": true,
   "description": "Assistente teológico Tutor Teo da Escola de Pregadores",
   "type": "module",
+  "engines": {
+    "node": ">=18.x"
+  },
   "scripts": {
     "dev": "vercel dev"
   },
