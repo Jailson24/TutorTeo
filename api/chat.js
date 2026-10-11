@@ -1,22 +1,24 @@
-import Groq from "groq-sdk";
-import Fuse from "fuse.js";
-import fs from "fs";
-import path from "path";
+const Groq = require("groq-sdk");
+const Fuse = require("fuse.js");
+const fs = require("fs");
+const path = require("path");
 
-// 1. Carrega a base de dados fatiada que geramos
-const dbPath = path.join(process.cwd(), "base-de-dados.json");
+// Carrega a base de dados usando __dirname para maior fiabilidade na Vercel
+const dbPath = path.join(__dirname, "..", "base-de-dados.json");
 let baseDeDados = [];
 try {
-  baseDeDados = JSON.parse(fs.readFileSync(dbPath, "utf-8"));
+  const fileContent = fs.readFileSync(dbPath, "utf-8");
+  baseDeDados = JSON.parse(fileContent);
+  console.log(`Base de dados carregada com ${baseDeDados.length} blocos.`);
 } catch (error) {
-  console.error("Aviso: base-de-dados.json não encontrado. Rode o script preparar-pdf.js primeiro.");
+  console.error("Erro ao carregar base-de-dados.json no caminho:", dbPath);
+  console.error(error);
 }
 
-// 2. Configura o motor de busca inteligente
 const buscador = new Fuse(baseDeDados, {
   keys: ["texto"],
   includeScore: true,
-  threshold: 0.5, // Grau de tolerância na busca
+  threshold: 0.5,
   ignoreLocation: true,
 });
 
@@ -26,7 +28,7 @@ Sua principal função é responder baseando-se EXCLUSIVAMENTE nos trechos da ap
 Se a informação não constar nos trechos fornecidos, diga: "Desculpe, mas não encontrei essa informação no meu material de estudo."
 Não invente informações e não use conhecimentos externos se eles conflitarem com a apostila.`;
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
     return res.status(405).json({ error: "Método não permitido. Use POST." });
@@ -34,14 +36,14 @@ export default async function handler(req, res) {
 
   const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) {
-    return res.status(500).json({ error: "Serviço temporariamente indisponível." });
+    console.error("ERRO: GROQ_API_KEY não encontrada nas variáveis de ambiente.");
+    return res.status(500).json({ error: "Serviço temporariamente indisponível. Chave API em falta." });
   }
 
   try {
     const body = req.body;
     let messages;
 
-    // Compatibilidade com os formatos de envio
     if (typeof body?.prompt === "string") {
       messages = [{ role: "user", content: body.prompt }];
     } else if (Array.isArray(body?.messages)) {
@@ -61,17 +63,14 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "A última mensagem precisa ser uma pergunta do aluno." });
     }
 
-    // 3. Pega a pergunta do usuário e busca na base de dados
     const ultimaPergunta = validMessages[validMessages.length - 1].content;
     const resultadosBusca = buscador.search(ultimaPergunta);
     
-    // Pega os 5 trechos mais relevantes da apostila
     const melhoresTrechos = resultadosBusca.slice(0, 5).map(resultado => resultado.item.texto);
     const contextoApostila = melhoresTrechos.length > 0 
       ? melhoresTrechos.join("\n\n---\n\n") 
       : "Nenhum trecho relevante encontrado na apostila.";
 
-    // 4. Monta o prompt injetando a apostila lida
     const promptFinal = `${SYSTEM_PROMPT}\n\nTRECHOS DA APOSTILA:\n${contextoApostila}`;
 
     const groq = new Groq({ apiKey });
@@ -82,19 +81,21 @@ export default async function handler(req, res) {
         { role: "system", content: promptFinal },
         ...validMessages
       ],
-      temperature: 0.3, // Temperatura baixa para não inventar dados fora da apostila
+      temperature: 0.3,
       max_completion_tokens: 1500
     });
 
     const resposta = completion.choices?.[0]?.message?.content?.trim();
     if (!resposta) {
+        console.error("ERRO: Resposta da Groq vazia ou inválida.");
       return res.status(502).json({ error: "O Tutor Teo não conseguiu gerar uma resposta." });
     }
 
     return res.status(200).json({ resposta });
 
   } catch (error) {
-    console.error("Erro na API:", error);
-    return res.status(502).json({ error: "Falha na conexão com a IA. Tente novamente." });
+    // Este log detalhado no servidor da Vercel é vital para o diagnóstico
+    console.error("Erro interno na API:", error);
+    return res.status(502).json({ error: "Falha na conexão com a IA. Tente novamente. Detalhes no log da Vercel." });
   }
-}
+};
