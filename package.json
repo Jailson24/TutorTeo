@@ -4,6 +4,6 @@
   "description": "Assistente Teologico Tutor Teo",
   "type": "module",
   "dependencies": {
-    "@google/genai": "latest"
+    "groq-sdk": "latest"
   }
 }
