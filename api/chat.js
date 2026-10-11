@@ -9,26 +9,23 @@ export default async function handler(req, res) {
 
     try {
         const perguntaDoAluno = req.body.prompt;
-
-        // 1. A SOLUÇÃO DEFINITIVA: Puxa a lista de arquivos que VOCÊ JÁ SUBIU no Google AI Studio
         let arquivosProntos = [];
         
-        // Pega todos os arquivos vinculados à sua chave
-        const respostaGoogle = await ai.files.list();
-        const lista = respostaGoogle.files || respostaGoogle; 
+        // Solicita a lista de arquivos vinculados à sua chave
+        const listaDeArquivos = await ai.files.list();
         
-        for (const arquivo of lista) {
-            // Filtra para usar apenas os seus PDFs
+        // O "for await" é a correção exata para ler as listas assíncronas do Google
+        for await (const arquivo of listaDeArquivos) {
             if (arquivo.mimeType === 'application/pdf') {
                 arquivosProntos.push(arquivo);
             }
         }
 
         if (arquivosProntos.length === 0) {
-            return res.status(400).json({ error: "Nenhuma apostila em PDF pronta foi encontrada na sua conta do Google AI Studio." });
+            return res.status(400).json({ error: "Nenhuma apostila em PDF pronta foi encontrada na sua conta." });
         }
 
-        // 2. Prepara a identidade dos arquivos (fileUri) no formato exato que a IA exige
+        // Prepara a identidade dos arquivos no formato exigido pela IA
         const arquivosFormatados = arquivosProntos.map(arquivo => ({
             fileData: {
                 fileUri: arquivo.uri,
@@ -36,7 +33,7 @@ export default async function handler(req, res) {
             }
         }));
 
-        // 3. Consulta a IA mantendo o modelo 1.5-flash (o mais estável para análise de livros longos)
+        // Consulta a IA enviando as referências da nuvem + pergunta do aluno
         const response = await ai.models.generateContent({
             model: 'gemini-1.5-flash',
             contents: [
