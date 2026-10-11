@@ -1,11 +1,12 @@
 import Groq from "groq-sdk";
 
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-
 export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Método não permitido' });
 
     try {
+        // Inicialização movida para DENTRO da função para evitar a quebra fatal do servidor
+        const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+        
         const perguntaDoAluno = req.body.prompt;
 
         const chatCompletion = await groq.chat.completions.create({
