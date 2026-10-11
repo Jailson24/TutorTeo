@@ -75,13 +75,13 @@ module.exports = async function handler(req, res) {
     
     // Chama a API da Groq usando o modelo correto e ativo
     const completion = await groq.chat.completions.create({
-      model: "mixtral-8x7b-32768", 
+      model: process.env.GROQ_MODEL || "mixtral-8x7b-32768", 
       messages: [
         { role: "system", content: promptFinal },
         ...validMessages
       ],
       temperature: 0.3,
-      max_completion_tokens: 1500
+      max_tokens: 1500 // Corrigido de max_completion_tokens para max_tokens
     });
 
     const resposta = completion.choices?.[0]?.message?.content?.trim();
@@ -93,7 +93,8 @@ module.exports = async function handler(req, res) {
     return res.status(200).json({ resposta });
 
   } catch (error) {
-    console.error("Erro interno na API (Catch):", error);
-    return res.status(502).json({ error: "Falha na conexão com a IA. Tente novamente." });
+    // Adiciona a mensagem real de erro para depuração futura no console da Vercel
+    console.error("Erro interno na API (Catch):", error.message || error);
+    return res.status(502).json({ error: "Falha na conexão com a IA. Tente novamente.", detalhe: error.message });
   }
 };
