@@ -21,7 +21,7 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: "Nenhuma apostila em PDF foi encontrada na biblioteca." });
         }
 
-        // Faz o upload de todos os PDFs encontrados
+        // 1. Faz o upload de todos os PDFs encontrados
         const arquivosUpload = await Promise.all(pdfs.map(async (pdf) => {
             const pdfPath = path.join(diretorio, pdf);
             return await ai.files.upload({
@@ -30,11 +30,19 @@ export default async function handler(req, res) {
             });
         }));
 
-        // Consulta a IA enviando todos os PDFs
+        // 2. Prepara o formato EXATO que a nova versão do Google exige
+        const arquivosFormatados = arquivosUpload.map(arquivo => ({
+            fileData: {
+                fileUri: arquivo.uri,
+                mimeType: arquivo.mimeType
+            }
+        }));
+
+        // 3. Consulta a IA enviando os PDFs formatados
         const response = await ai.models.generateContent({
             model: 'gemini-1.5-flash',
             contents: [
-                ...arquivosUpload,
+                ...arquivosFormatados,
                 perguntaDoAluno
             ],
             config: {
