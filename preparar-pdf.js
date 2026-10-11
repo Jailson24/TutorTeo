@@ -1,13 +1,13 @@
-import fs from 'fs';
-import path from 'path';
-import { PDFParse } from 'pdf-parse';
+const fs = require('fs');
+const path = require('path');
+const pdf = require('pdf-parse'); // Importação corrigida para padrão CommonJS
 
 async function extrairTextos() {
   const pastaApostilas = './apostilas';
   const blocos = [];
 
   if (!fs.existsSync(pastaApostilas)) {
-    console.error("A pasta 'apostilas' não foi encontrada.");
+    console.error("A pasta 'apostilas' não foi encontrada. Crie a pasta e adicione os PDFs.");
     return;
   }
 
@@ -27,10 +27,9 @@ async function extrairTextos() {
     const dataBuffer = fs.readFileSync(caminhoArquivo);
     
     try {
-      // Usando a API moderna da biblioteca pdf-parse
-      const parser = new PDFParse({ data: dataBuffer });
-      const result = await parser.getText();
-      const textoCompleto = result.text;
+      // Uso correto da função da biblioteca pdf-parse
+      const data = await pdf(dataBuffer);
+      const textoCompleto = data.text;
       
       const paragrafos = textoCompleto.split(/\n\s*\n/); 
       let blocoAtual = "";
@@ -48,7 +47,6 @@ async function extrairTextos() {
         blocos.push({ texto: blocoAtual.trim(), origem: arquivo });
       }
       
-      await parser.destroy(); // Libera a memória após ler o PDF
     } catch (error) {
       console.error(`Erro ao ler o arquivo ${arquivo}:`, error);
     }
