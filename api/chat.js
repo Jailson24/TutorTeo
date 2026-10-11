@@ -1,6 +1,4 @@
 import { GoogleGenAI } from '@google/genai';
-import path from 'path';
-import fs from 'fs';
 
 const ai = new GoogleGenAI({
     apiKey: process.env.GEMINI_API_KEY,
@@ -11,34 +9,34 @@ export default async function handler(req, res) {
 
     try {
         const perguntaDoAluno = req.body.prompt;
-        const diretorio = process.cwd();
-        
-        // Localiza todos os arquivos .pdf na raiz do projeto
-        const arquivosNaPasta = fs.readdirSync(diretorio);
-        const pdfs = arquivosNaPasta.filter(file => file.endsWith('.pdf'));
 
-        if (pdfs.length === 0) {
-            return res.status(400).json({ error: "Nenhuma apostila em PDF foi encontrada na biblioteca." });
+        // 1. A SOLUÇÃO DEFINITIVA: Puxa a lista de arquivos que VOCÊ JÁ SUBIU no Google AI Studio
+        let arquivosProntos = [];
+        
+        // Pega todos os arquivos vinculados à sua chave
+        const respostaGoogle = await ai.files.list();
+        const lista = respostaGoogle.files || respostaGoogle; 
+        
+        for (const arquivo of lista) {
+            // Filtra para usar apenas os seus PDFs
+            if (arquivo.mimeType === 'application/pdf') {
+                arquivosProntos.push(arquivo);
+            }
         }
 
-        // 1. Faz o upload de todos os PDFs encontrados
-        const arquivosUpload = await Promise.all(pdfs.map(async (pdf) => {
-            const pdfPath = path.join(diretorio, pdf);
-            return await ai.files.upload({
-                file: pdfPath,
-                mimeType: 'application/pdf',
-            });
-        }));
+        if (arquivosProntos.length === 0) {
+            return res.status(400).json({ error: "Nenhuma apostila em PDF pronta foi encontrada na sua conta do Google AI Studio." });
+        }
 
-        // 2. Prepara o formato EXATO que a nova versão do Google exige
-        const arquivosFormatados = arquivosUpload.map(arquivo => ({
+        // 2. Prepara a identidade dos arquivos (fileUri) no formato exato que a IA exige
+        const arquivosFormatados = arquivosProntos.map(arquivo => ({
             fileData: {
                 fileUri: arquivo.uri,
                 mimeType: arquivo.mimeType
             }
         }));
 
-        // 3. Consulta a IA enviando os PDFs formatados
+        // 3. Consulta a IA mantendo o modelo 1.5-flash (o mais estável para análise de livros longos)
         const response = await ai.models.generateContent({
             model: 'gemini-1.5-flash',
             contents: [
@@ -54,6 +52,6 @@ export default async function handler(req, res) {
 
     } catch (error) {
         console.error("Erro no processamento:", error);
-        res.status(500).json({ error: "Erro interno ao consultar a biblioteca de apostilas." });
+        res.status(500).json({ error: "Erro interno. O Tutor Teo não conseguiu acessar a biblioteca na nuvem." });
     }
 }
