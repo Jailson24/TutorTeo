@@ -3,16 +3,21 @@ const Fuse = require("fuse.js");
 const fs = require("fs");
 const path = require("path");
 
-// Carrega a base de dados
-const dbPath = path.join(__dirname, "..", "base-de-dados.json");
+// 1. Carrega a base de dados (Vercel recomenda usar process.cwd() na raiz)
+// Como o ficheiro base-de-dados.json está na mesma pasta raiz do projeto que o package.json:
+const dbPath = path.join(process.cwd(), "base-de-dados.json");
+
 let baseDeDados = [];
 try {
-  const fileContent = fs.readFileSync(dbPath, "utf-8");
-  baseDeDados = JSON.parse(fileContent);
-  console.log(`Base de dados carregada com ${baseDeDados.length} blocos.`);
+  if (fs.existsSync(dbPath)) {
+    const fileContent = fs.readFileSync(dbPath, "utf-8");
+    baseDeDados = JSON.parse(fileContent);
+    console.log(`SUCESSO: Base de dados carregada com ${baseDeDados.length} blocos.`);
+  } else {
+    console.error("ERRO CRÍTICO: Arquivo base-de-dados.json NÃO FOI ENCONTRADO no caminho:", dbPath);
+  }
 } catch (error) {
-  console.error("Erro ao carregar base-de-dados.json no caminho:", dbPath);
-  console.error(error);
+  console.error("ERRO ao ler o arquivo base-de-dados.json:", error);
 }
 
 const buscador = new Fuse(baseDeDados, {
@@ -36,8 +41,8 @@ module.exports = async function handler(req, res) {
 
   const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) {
-    console.error("ERRO: GROQ_API_KEY não encontrada nas variáveis de ambiente.");
-    return res.status(500).json({ error: "Serviço temporariamente indisponível. Chave API em falta." });
+    console.error("ERRO: GROQ_API_KEY não foi encontrada.");
+    return res.status(500).json({ error: "Chave da API da Groq em falta." });
   }
 
   try {
@@ -63,6 +68,7 @@ module.exports = async function handler(req, res) {
       return res.status(400).json({ error: "A última mensagem precisa ser uma pergunta do aluno." });
     }
 
+    // Procura na apostila os trechos relevantes
     const ultimaPergunta = validMessages[validMessages.length - 1].content;
     const resultadosBusca = buscador.search(ultimaPergunta);
     
@@ -71,13 +77,14 @@ module.exports = async function handler(req, res) {
       ? melhoresTrechos.join("\n\n---\n\n") 
       : "Nenhum trecho relevante encontrado na apostila.";
 
+    // Constrói o Prompt Final
     const promptFinal = `${SYSTEM_PROMPT}\n\nTRECHOS DA APOSTILA:\n${contextoApostila}`;
 
     const groq = new Groq({ apiKey });
     
+    // Chama a API da Groq usando um modelo comprovadamente ativo
     const completion = await groq.chat.completions.create({
-      // MODELO ATUALIZADO AQUI:
-      model: process.env.GROQ_MODEL || "llama-3.1-8b-instant",
+      model: "llama3-70b-8192", // Modelo poderoso e ativo
       messages: [
         { role: "system", content: promptFinal },
         ...validMessages
@@ -88,14 +95,21 @@ module.exports = async function handler(req, res) {
 
     const resposta = completion.choices?.[0]?.message?.content?.trim();
     if (!resposta) {
-        console.error("ERRO: Resposta da Groq vazia ou inválida.");
+      console.error("ERRO: A Groq devolveu uma resposta vazia.");
       return res.status(502).json({ error: "O Tutor Teo não conseguiu gerar uma resposta." });
     }
 
+    // Devolve a resposta com sucesso
     return res.status(200).json({ resposta });
 
   } catch (error) {
-    console.error("Erro interno na API:", error);
+    // Registo de erros da Groq com detalhes precisos
+    if (error.error?.error?.code === "model_not_found") {
+       console.error("ERRO DA GROQ: Modelo não encontrado ou sem acesso. Verifique o nome do modelo.");
+       return res.status(502).json({ error: "Erro de modelo na IA. Contacte o administrador." });
+    }
+    
+    console.error("Erro interno na API (Catch):", error);
     return res.status(502).json({ error: "Falha na conexão com a IA. Tente novamente." });
   }
 };
