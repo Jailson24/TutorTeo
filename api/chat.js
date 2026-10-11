@@ -3,7 +3,7 @@ const Fuse = require("fuse.js");
 const fs = require("fs");
 const path = require("path");
 
-// Carrega a base de dados usando __dirname para maior fiabilidade na Vercel
+// Carrega a base de dados
 const dbPath = path.join(__dirname, "..", "base-de-dados.json");
 let baseDeDados = [];
 try {
@@ -76,7 +76,8 @@ module.exports = async function handler(req, res) {
     const groq = new Groq({ apiKey });
     
     const completion = await groq.chat.completions.create({
-      model: process.env.GROQ_MODEL || "llama3-8b-8192",
+      // MODELO ATUALIZADO AQUI:
+      model: process.env.GROQ_MODEL || "llama-3.1-8b-instant",
       messages: [
         { role: "system", content: promptFinal },
         ...validMessages
@@ -94,8 +95,7 @@ module.exports = async function handler(req, res) {
     return res.status(200).json({ resposta });
 
   } catch (error) {
-    // Este log detalhado no servidor da Vercel é vital para o diagnóstico
     console.error("Erro interno na API:", error);
-    return res.status(502).json({ error: "Falha na conexão com a IA. Tente novamente. Detalhes no log da Vercel." });
+    return res.status(502).json({ error: "Falha na conexão com a IA. Tente novamente." });
   }
 };
