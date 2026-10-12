@@ -1,7 +1,6 @@
 const Groq = require("groq-sdk");
 const Fuse = require("fuse.js");
 
-// 1. O "require" força a Vercel a empacotar o arquivo JSON junto com a API.
 let baseDeDados = [];
 try {
   baseDeDados = require("../base-de-dados.json");
@@ -10,7 +9,6 @@ try {
   console.error("ERRO CRÍTICO: Não foi possível ler o base-de-dados.json", error);
 }
 
-// 2. Configura o buscador
 const buscador = new Fuse(baseDeDados, {
   keys: ["texto"],
   includeScore: true,
@@ -59,7 +57,6 @@ module.exports = async function handler(req, res) {
       return res.status(400).json({ error: "A última mensagem precisa ser uma pergunta." });
     }
 
-    // Procura na apostila os trechos relevantes
     const ultimaPergunta = validMessages[validMessages.length - 1].content;
     const resultadosBusca = buscador.search(ultimaPergunta);
     
@@ -68,20 +65,18 @@ module.exports = async function handler(req, res) {
       ? melhoresTrechos.join("\n\n---\n\n") 
       : "Nenhum trecho relevante encontrado na apostila.";
 
-    // Constrói o Prompt Final
     const promptFinal = `${SYSTEM_PROMPT}\n\nTRECHOS DA APOSTILA:\n${contextoApostila}`;
 
     const groq = new Groq({ apiKey });
     
-    // Chama a API da Groq usando o modelo correto e ativo
     const completion = await groq.chat.completions.create({
-      model: process.env.GROQ_MODEL || "mixtral-8x7b-32768", 
+      model: "llama3-8b-8192", // Modelo atualizado e altamente estável na Groq
       messages: [
         { role: "system", content: promptFinal },
         ...validMessages
       ],
       temperature: 0.3,
-      max_tokens: 1500 // Corrigido de max_completion_tokens para max_tokens
+      max_tokens: 1500
     });
 
     const resposta = completion.choices?.[0]?.message?.content?.trim();
@@ -93,8 +88,7 @@ module.exports = async function handler(req, res) {
     return res.status(200).json({ resposta });
 
   } catch (error) {
-    // Adiciona a mensagem real de erro para depuração futura no console da Vercel
-    console.error("Erro interno na API (Catch):", error.message || error);
-    return res.status(502).json({ error: "Falha na conexão com a IA. Tente novamente.", detalhe: error.message });
+    console.error("Erro interno na API (Catch):", error);
+    return res.status(502).json({ error: error.message || "Falha na conexão com a IA. Tente novamente." });
   }
 };
