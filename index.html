@@ -80,7 +80,7 @@
     }
     
     .ia-avatar {
-      width: 52px; height: 52px; flex: 0 0 52px; border-radius: 50%; 
+      width: 54px; height: 54px; flex: 0 0 54px; border-radius: 50%; 
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
       background: #fff;
     }
@@ -176,51 +176,105 @@
   <main class="chat-container" aria-label="Conversa com o Tutor Teo">
     <div class="chat-header">
       
-      <!-- Avatar Cartoon Masculino Jovem, com Óculos e Sem Boné (Código Nativo) -->
+      <!-- Avatar 3D Cartoon Estilo Disney/Pixar (Código Nativo) -->
       <svg class="ia-avatar" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
         <defs>
-          <linearGradient id="avatar-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <!-- Fundo Dourado Radiante -->
+          <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stop-color="#FFD700" />
             <stop offset="100%" stop-color="#FF8C00" />
           </linearGradient>
+          
+          <!-- Gradiente de Pele 3D -->
+          <radialGradient id="skin-grad" cx="45%" cy="45%" r="60%">
+            <stop offset="0%" stop-color="#ffefdf" />
+            <stop offset="60%" stop-color="#f5ceb3" />
+            <stop offset="100%" stop-color="#e0a382" />
+          </radialGradient>
+          
+          <!-- Gradiente de Cabelo com Brilho -->
+          <linearGradient id="hair-grad" x1="20%" y1="0%" x2="80%" y2="100%">
+            <stop offset="0%" stop-color="#7a4b2c" />
+            <stop offset="40%" stop-color="#5c3a21" />
+            <stop offset="100%" stop-color="#301c0e" />
+          </linearGradient>
+          
+          <!-- Sombra Interna do Pescoço -->
+          <linearGradient id="neck-shadow" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="rgba(0,0,0,0.2)" />
+            <stop offset="100%" stop-color="rgba(0,0,0,0)" />
+          </linearGradient>
         </defs>
-        <!-- Fundo circular com gradiente -->
-        <circle cx="50" cy="50" r="50" fill="url(#avatar-grad)" />
-        
-        <!-- Tronco (Camiseta infantil azul) -->
-        <path d="M 25 100 C 25 75, 35 70, 50 70 C 65 70, 75 75, 75 100" fill="#3498db" stroke="#1a252f" stroke-width="3"/>
-        <path d="M 38 72 L 62 72" stroke="#1a252f" stroke-width="3" stroke-linecap="round"/>
-        
-        <!-- Orelhas -->
-        <circle cx="27" cy="52" r="4" fill="#ffddb0" stroke="#1a252f" stroke-width="3"/>
-        <circle cx="73" cy="52" r="4" fill="#ffddb0" stroke="#1a252f" stroke-width="3"/>
 
-        <!-- Cabeça redondinha -->
-        <circle cx="50" cy="50" r="23" fill="#ffddb0" stroke="#1a252f" stroke-width="3"/>
+        <!-- Fundo circular -->
+        <circle cx="50" cy="50" r="50" fill="url(#bg-grad)" />
         
-        <!-- Cabelo (sem boné) -->
-        <path d="M 26 45 C 22 18, 78 18, 74 45 C 65 32, 50 28, 26 45 Z" fill="#5c3a21" stroke="#1a252f" stroke-width="3" stroke-linejoin="round"/>
-        <path d="M 40 24 Q 50 15 60 24" fill="none" stroke="#1a252f" stroke-width="2" stroke-linecap="round"/>
+        <!-- Ombros e Roupa -->
+        <path d="M 20 100 C 20 70, 30 65, 50 65 C 70 65, 80 70, 80 100" fill="#2c3e50" />
+        <path d="M 35 65 Q 50 78 65 65 L 50 82 Z" fill="#ecf0f1" /> <!-- Gola em V -->
 
-        <!-- Olhinhos grandes de menino (atrás das lentes) -->
-        <circle cx="40" cy="48" r="4" fill="#1a252f"/>
-        <circle cx="60" cy="48" r="4" fill="#1a252f"/>
-        <circle cx="41" cy="47" r="1.5" fill="#ffffff"/>
-        <circle cx="61" cy="47" r="1.5" fill="#ffffff"/>
-        
-        <!-- Óculos grandes redondos (estilo estudioso) -->
-        <circle cx="40" cy="48" r="8" fill="rgba(255,255,255,0.2)" stroke="#1a252f" stroke-width="2.5"/>
-        <circle cx="60" cy="48" r="8" fill="rgba(255,255,255,0.2)" stroke="#1a252f" stroke-width="2.5"/>
-        <path d="M 48 48 L 52 48" stroke="#1a252f" stroke-width="2.5"/>
-        <path d="M 32 48 L 26 46" stroke="#1a252f" stroke-width="2.5" stroke-linecap="round"/>
-        <path d="M 68 48 L 74 46" stroke="#1a252f" stroke-width="2.5" stroke-linecap="round"/>
+        <!-- Pescoço com sombra -->
+        <rect x="42" y="55" width="16" height="15" fill="url(#skin-grad)" />
+        <rect x="42" y="55" width="16" height="8" fill="url(#neck-shadow)" />
 
-        <!-- Bochechas rosadas de criança -->
-        <circle cx="34" cy="58" r="3.5" fill="#ff9999" opacity="0.7"/>
-        <circle cx="66" cy="58" r="3.5" fill="#ff9999" opacity="0.7"/>
+        <!-- Orelhas com profundidade -->
+        <circle cx="25" cy="50" r="6" fill="url(#skin-grad)" />
+        <circle cx="75" cy="50" r="6" fill="url(#skin-grad)" />
+        <circle cx="24" cy="50" r="3" fill="rgba(0,0,0,0.1)" /> <!-- Sombra interna -->
+        <circle cx="76" cy="50" r="3" fill="rgba(0,0,0,0.1)" />
+
+        <!-- Cabeça Suave (Estilo Animação) -->
+        <path d="M 26 42 C 26 15, 74 15, 74 42 C 74 65, 63 73, 50 73 C 37 73, 26 65, 26 42 Z" fill="url(#skin-grad)" />
         
-        <!-- Sorriso infantil e simpático -->
-        <path d="M 44 59 Q 50 65 56 59" fill="none" stroke="#1a252f" stroke-width="3" stroke-linecap="round"/>
+        <!-- Cabelo Volumoso -->
+        <path d="M 22 45 C 18 20, 45 5, 50 5 C 55 5, 82 20, 78 45 C 80 25, 60 8, 45 12 C 35 15, 25 25, 22 45 Z" fill="url(#hair-grad)" />
+        <!-- Topete/Franja texturizada -->
+        <path d="M 25 36 Q 40 22 62 30 Q 68 25 75 35 Q 60 15 45 22 Q 35 24 25 36 Z" fill="#6d4224" />
+        <path d="M 40 20 Q 55 12 65 24 Q 55 18 40 20 Z" fill="#8c5834" opacity="0.6" /> <!-- Brilho do Cabelo -->
+
+        <!-- Sobrancelhas expressivas e amigáveis -->
+        <path d="M 32 36 Q 38 33 44 36" fill="none" stroke="#4a2e1b" stroke-width="3" stroke-linecap="round"/>
+        <path d="M 56 36 Q 62 33 68 36" fill="none" stroke="#4a2e1b" stroke-width="3" stroke-linecap="round"/>
+
+        <!-- Olhos Grandes (Expressão Estilo Disney) -->
+        <!-- Esclerótica (Branco do Olho) -->
+        <ellipse cx="38" cy="46" rx="6.5" ry="8.5" fill="#ffffff" />
+        <ellipse cx="62" cy="46" rx="6.5" ry="8.5" fill="#ffffff" />
+        <!-- Íris (Castanho Quente) -->
+        <ellipse cx="39" cy="46" rx="4.5" ry="6" fill="#8e5b38" />
+        <ellipse cx="61" cy="46" rx="4.5" ry="6" fill="#8e5b38" />
+        <!-- Pupilas (Preto) -->
+        <ellipse cx="39" cy="46" rx="2.5" ry="3.5" fill="#1a1a1a" />
+        <ellipse cx="61" cy="46" rx="2.5" ry="3.5" fill="#1a1a1a" />
+        <!-- Destaque de Luz (O Brilho da Vida) -->
+        <circle cx="38" cy="44" r="1.5" fill="#ffffff" />
+        <circle cx="40.5" cy="47" r="0.7" fill="#ffffff" />
+        <circle cx="60" cy="44" r="1.5" fill="#ffffff" />
+        <circle cx="62.5" cy="47" r="0.7" fill="#ffffff" />
+
+        <!-- Nariz Suave e Pequeno -->
+        <path d="M 48 52 Q 50 55 52 52" fill="none" stroke="#d68f70" stroke-width="2.5" stroke-linecap="round" />
+
+        <!-- Bochechas Coradas -->
+        <ellipse cx="32" cy="54" rx="4" ry="3" fill="#ff7b7b" opacity="0.3" />
+        <ellipse cx="68" cy="54" rx="4" ry="3" fill="#ff7b7b" opacity="0.3" />
+
+        <!-- Sorriso Aberto e Carismático -->
+        <path d="M 39 59 Q 50 69 61 59 Q 50 63 39 59 Z" fill="#7a2a2a" /> <!-- Interior da Boca -->
+        <path d="M 42 60 Q 50 64 58 60 Q 50 62 42 60 Z" fill="#ffffff" /> <!-- Dentes -->
+
+        <!-- Óculos Redondos de Aros Grossos com Reflexos -->
+        <!-- Lentes translúcidas azuis -->
+        <rect x="29" y="38" width="18" height="15" rx="5" fill="rgba(255,255,255,0.2)" stroke="#222" stroke-width="2.5" />
+        <rect x="53" y="38" width="18" height="15" rx="5" fill="rgba(255,255,255,0.2)" stroke="#222" stroke-width="2.5" />
+        <!-- Ponte do óculos -->
+        <path d="M 47 44 L 53 44" stroke="#222" stroke-width="2.5" />
+        <!-- Hastes -->
+        <path d="M 29 44 Q 26 44 24 42" fill="none" stroke="#222" stroke-width="2.5" stroke-linecap="round" />
+        <path d="M 71 44 Q 74 44 76 42" fill="none" stroke="#222" stroke-width="2.5" stroke-linecap="round" />
+        <!-- Reflexo Mágico no vidro -->
+        <path d="M 31 40 L 35 44" stroke="#ffffff" stroke-width="1.5" opacity="0.6" stroke-linecap="round"/>
+        <path d="M 55 40 L 59 44" stroke="#ffffff" stroke-width="1.5" opacity="0.6" stroke-linecap="round"/>
       </svg>
       
       <div class="ia-info">
