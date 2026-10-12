@@ -1,233 +1,36 @@
-<!doctype html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#2c3e50" />
-  <meta name="description" content="Tutor Teo, assistente teológico da Escola de Pregadores." />
-  <title>Escola de Pregadores | Tutor Teo</title>
-  <style>
-    :root {
-      --primary-color: #2c3e50;
-      --secondary-color: #d4af37;
-      --bg-color: #f8f9fa;
-      --text-color: #333;
-      --message-user-bg: #e3f2fd;
-      --message-ia-bg: #f1f8e9;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html { height: 100%; }
-    body {
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      background: var(--bg-color); color: var(--text-color);
-      display: flex; flex-direction: column; align-items: center;
-      min-height: 100%; height: 100%; overflow: hidden;
-    }
-    header {
-      width: 100%; background: var(--primary-color); color: white;
-      padding: 20px 12px; text-align: center; box-shadow: 0 2px 5px #0000001a;
-    }
-    header h1 { font-size: 24px; font-weight: 600; letter-spacing: 1px; }
-    header p { font-size: 14px; color: var(--secondary-color); margin-top: 5px; }
-    .chat-container {
-      width: min(800px, 100%); background: #fff; margin: 20px;
-      border-radius: 12px; box-shadow: 0 8px 20px #00000014;
-      display: flex; flex-direction: column; height: calc(100dvh - 140px); min-height: 400px; overflow: hidden;
-    }
-    .chat-header {
-      background: #f1f3f5; padding: 12px 16px; border-bottom: 1px solid #e9ecef;
-      display: flex; align-items: center; gap: 15px; flex: 0 0 auto;
-    }
-    .chat-tools { margin-left: auto; display: flex; align-items: center; gap: 6px; }
-    .chat-tools button { min-width: 36px; min-height: 36px; border: 1px solid #ced4da; border-radius: 9px; background: white; color: var(--primary-color); font-size: 16px; font-weight: 700; cursor: pointer; }
-    .chat-tools button:focus-visible { outline: 2px solid var(--secondary-color); outline-offset: 2px; }
-    .chat-tools .font-label { font-size: 12px; color: #555; min-width: 34px; text-align: center; }
-    .ia-avatar {
-      width: 45px; height: 45px; flex: 0 0 45px; border-radius: 50%; background: var(--secondary-color);
-      display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 18px;
-    }
-    .ia-info h2 { font-size: 16px; color: var(--primary-color); }
-    .ia-info p { font-size: 12px; color: #6c757d; margin-top: 2px; }
-    .chat-messages {
-      flex: 1 1 auto; min-height: 0; padding: 20px; overflow-y: auto; overscroll-behavior: contain;
-      -webkit-overflow-scrolling: touch; touch-action: pan-y; display: flex; flex-direction: column; gap: 15px;
-    }
-    .message {
-      max-width: 85%; padding: 12px 16px; border-radius: 8px; font-size: var(--message-font-size, 16px);
-      line-height: 1.5; overflow-wrap: anywhere; white-space: pre-wrap;
-    }
-    .message.user { align-self: flex-end; background: var(--message-user-bg); border-bottom-right-radius: 0; color: #0d47a1; }
-    .message.ia { align-self: flex-start; background: var(--message-ia-bg); border-bottom-left-radius: 0; color: #2e7d32; }
-    .message-time { display: block; font-size: 10px; color: #777; margin-top: 5px; text-align: right; }
-    .typing-indicator { display: none; padding: 0 20px 12px; color: #2e7d32; font-size: 13px; font-style: italic; }
-    .chat-input-area {
-      padding: 12px 16px; background: #fff; border-top: 1px solid #e9ecef; display: flex; gap: 10px; flex: 0 0 auto;
-    }
-    .chat-input-area input {
-      min-width: 0; flex: 1; padding: 12px 15px; border: 1px solid #ced4da; border-radius: 25px;
-      font-size: 15px; outline: none;
-    }
-    .chat-input-area input:focus { border-color: var(--secondary-color); }
-    .chat-input-area button {
-      background: var(--primary-color); color: white; border: 0; border-radius: 25px;
-      padding: 0 24px; font-size: 15px; font-weight: 600; cursor: pointer;
-    }
-    .chat-input-area button:hover { background: #1a252f; }
-    .chat-input-area button:disabled, .chat-input-area input:disabled { opacity: .65; cursor: not-allowed; }
-    @media (max-width: 600px) {
-      header { padding: 15px 10px; } header h1 { font-size: 20px; }
-      .chat-container { margin: 0; width: 100%; height: calc(100dvh - 78px); height: calc(100vh - 78px); height: calc(100dvh - 78px); min-height: 0; border-radius: 0; }
-      .message { max-width: 92%; }
-      .chat-messages { padding: 14px; }
-      .chat-header { padding: 10px 12px; gap: 10px; }
-      .chat-input-area { padding: 10px 12px; padding-bottom: max(10px, env(safe-area-inset-bottom)); }
-      .chat-input-area input { font-size: 16px; }
-      .chat-tools { gap: 4px; }
-      .chat-tools button { min-width: 32px; min-height: 34px; }
-      .chat-tools .font-label { display: none; }
-      .chat-input-area button { padding: 0 18px; }
-    }
-  </style>
-</head>
-<body>
-  <header>
-    <h1>Escola de Pregadores</h1>
-    <p>Formando com Excelência e Fé</p>
-  </header>
+const CACHE_NAME = "tutor-teo-pwa-v1";
+const APP_SHELL = ["/", "/index.html", "/manifest.webmanifest", "/icons/icon-192.png", "/icons/icon-512.png"];
 
-  <main class="chat-container" aria-label="Conversa com o Tutor Teo">
-    <div class="chat-header">
-      <div class="ia-avatar" aria-hidden="true">T</div>
-      <div class="ia-info">
-        <h2>Tutor Teo</h2>
-        <p>Seu Assistente Teológico</p>
-      </div>
-      <div class="chat-tools" aria-label="Ajustar tamanho das letras">
-        <button type="button" id="font-down" aria-label="Diminuir tamanho das letras" title="Diminuir letras">A−</button>
-        <span class="font-label" id="font-size-label" aria-live="polite">16px</span>
-        <button type="button" id="font-up" aria-label="Aumentar tamanho das letras" title="Aumentar letras">A+</button>
-      </div>
-    </div>
+self.addEventListener("install", (event) => {
+  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)));
+  self.skipWaiting();
+});
 
-    <div class="chat-messages" id="chat-messages" aria-live="polite" aria-label="Mensagens"></div>
-    <div class="typing-indicator" id="typing-indicator" role="status">Tutor Teo está preparando a resposta...</div>
-    <form class="chat-input-area" id="chat-form">
-      <input type="text" id="user-input" maxlength="5000" placeholder="Digite sua pergunta..." autocomplete="off" aria-label="Sua pergunta" required />
-      <button type="submit" id="send-button">Enviar</button>
-    </form>
-  </main>
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
+    caches.keys().then((keys) => Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))))
+  );
+  self.clients.claim();
+});
 
-  <script>
-    const form = document.getElementById("chat-form");
-    const input = document.getElementById("user-input");
-    const messagesContainer = document.getElementById("chat-messages");
-    const typingIndicator = document.getElementById("typing-indicator");
-    const sendButton = document.getElementById("send-button");
-    const STORAGE_KEY = "tutorTeoChatHistory_v1";
-    const FONT_KEY = "tutorTeoFontSize_v1";
-    const WELCOME = "Olá! Sou o Tutor Teo, assistente virtual da Escola de Pregadores. O que gostaria de perguntar hoje?";
-    let fontSize = 16;
-    let conversation = [];
+self.addEventListener("fetch", (event) => {
+  const request = event.request;
+  const url = new URL(request.url);
+  // Nunca guardar respostas da API/chat em cache.
+  if (request.method !== "GET" || url.origin !== self.location.origin || url.pathname.startsWith("/api/")) return;
 
-    function getCurrentTime() {
-      return new Intl.DateTimeFormat("pt-BR", { hour: "2-digit", minute: "2-digit" }).format(new Date());
-    }
-
-    function saveHistory() {
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(conversation)); }
-      catch (error) { console.warn("Não foi possível salvar o histórico neste navegador.", error); }
-    }
-
-    function appendMessage(text, sender, timeText = getCurrentTime(), shouldScroll = true) {
-      const messageDiv = document.createElement("div");
-      messageDiv.className = `message ${sender}`;
-      messageDiv.appendChild(document.createTextNode(String(text)));
-      const time = document.createElement("span");
-      time.className = "message-time";
-      time.textContent = timeText;
-      messageDiv.appendChild(time);
-      messagesContainer.appendChild(messageDiv);
-      if (shouldScroll) scrollToLatest();
-    }
-
-    function scrollToLatest() {
-      requestAnimationFrame(() => { messagesContainer.scrollTop = messagesContainer.scrollHeight; });
-    }
-
-    function loadHistory() {
-      try {
-        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-        if (Array.isArray(saved)) {
-          conversation = saved.filter(item => item && ["user", "assistant"].includes(item.role) && typeof item.content === "string");
-        }
-      } catch (error) { conversation = []; }
-
-      if (conversation.length) {
-        conversation.forEach(item => appendMessage(item.content, item.role === "user" ? "user" : "ia", item.time || "Salvo", false));
-      } else {
-        appendMessage(WELCOME, "ia", "Agora", false);
+  event.respondWith(
+    fetch(request).then((response) => {
+      if (response && response.ok) {
+        const copy = response.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
       }
-      scrollToLatest();
-    }
-
-    function applyFontSize() {
-      document.documentElement.style.setProperty("--message-font-size", `${fontSize}px`);
-      document.getElementById("font-size-label").textContent = `${fontSize}px`;
-      try { localStorage.setItem(FONT_KEY, String(fontSize)); } catch (_) {}
-    }
-
-    document.getElementById("font-down").addEventListener("click", () => { fontSize = Math.max(14, fontSize - 1); applyFontSize(); });
-    document.getElementById("font-up").addEventListener("click", () => { fontSize = Math.min(24, fontSize + 1); applyFontSize(); });
-    try { fontSize = Math.min(24, Math.max(14, Number(localStorage.getItem(FONT_KEY)) || 16)); } catch (_) {}
-    applyFontSize();
-    loadHistory();
-
-    form.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      const messageText = input.value.trim();
-      if (!messageText || sendButton.disabled) return;
-
-      appendMessage(messageText, "user");
-      conversation.push({ role: "user", content: messageText, time: getCurrentTime() });
-      saveHistory();
-      input.value = "";
-      sendButton.disabled = true;
-      input.disabled = true;
-      typingIndicator.style.display = "block";
-      messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-      try {
-        const response = await fetch("/api/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ messages: conversation.slice(-12).map(({ role, content }) => ({ role, content })) })
-        });
-
-        let data;
-        try { data = await response.json(); }
-        catch { throw new Error("O servidor retornou uma resposta inválida."); }
-
-        if (!response.ok) throw new Error(data.error || "Não foi possível obter uma resposta.");
-        if (typeof data.resposta !== "string" || !data.resposta.trim()) {
-          throw new Error("O Tutor Teo retornou uma resposta vazia. Tente novamente.");
-        }
-
-        conversation.push({ role: "assistant", content: data.resposta, time: getCurrentTime() });
-        saveHistory();
-        appendMessage(data.resposta, "ia");
-      } catch (error) {
-        console.error("Erro ao enviar mensagem:", error);
-        appendMessage(error.message || "Erro de conexão. Verifique sua internet e tente novamente.", "ia");
-        // Mantém a pergunta salva no histórico visual, mas remove do contexto enviado à IA se falhou.
-        if (conversation.length && conversation[conversation.length - 1].role === "user") conversation.pop();
-        saveHistory();
-      } finally {
-        typingIndicator.style.display = "none";
-        sendButton.disabled = false;
-        input.disabled = false;
-        input.focus();
-      }
-    });
-  </script>
-</body>
-</html>
+      return response;
+    }).catch(async () => {
+      const cached = await caches.match(request);
+      if (cached) return cached;
+      if (request.mode === "navigate") return caches.match("/index.html");
+      throw new Error("Recurso indisponível offline");
+    })
+  );
+});
