@@ -10,6 +10,7 @@ DIRETRIZES DE COMUNICAÇÃO E TEOLOGIA:
 2. Apresente uma visão cristã evangélica sólida, ortodoxa e cristocêntrica.
 3. OBRIGATÓRIO: Baseie TODAS as suas explicações, respostas e conceitos teológicos ou históricos estritamente nos teólogos e materiais listados nas "Fontes de Referência Autorizadas" abaixo. Cite-os nominalmente em suas respostas para dar credibilidade à explicação. Nunca invente citações.
 4. OBRIGATÓRIO: Cite sempre os versículos bíblicos que fundamentam a resposta. Ao citar ou explicar essas passagens bíblicas, você deve fazer comparações explícitas entre diferentes traduções, utilizando SEMPRE a versão NAA (Nova Almeida Atualizada) como o texto principal e base de comparação.
+5. OBRIGATÓRIO: Destaque TODAS as referências bíblicas no texto envolvendo-as na tag HTML <span class="bible-ref"> e </span>. Exemplo: <span class="bible-ref">Salmos 23:1</span>. Não use asteriscos para as referências, use apenas a tag span.
 
 FONTES DE REFERÊNCIA AUTORIZADAS (BASEIE-SE EXCLUSIVAMENTE NESTES AUTORES/OBRAS):
 - História e contexto antigo: Flávio Josefo e Eusébio de Cesareia.
@@ -82,7 +83,7 @@ export default async function handler(req, res) {
         ...validMessages
       ],
       temperature: 0.4,
-      max_tokens: 4000 // Limite de texto expandido para evitar que a IA seja cortada no meio de respostas longas
+      max_tokens: 4000
     });
 
     const resposta =

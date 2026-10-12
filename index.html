@@ -97,11 +97,13 @@
     .message.user { align-self: flex-end; background: var(--message-user-bg); border-bottom-right-radius: 4px; color: #0d47a1; border: 1px solid rgba(13, 71, 161, 0.1); white-space: pre-wrap; }
     .message.ia { align-self: flex-start; background: var(--message-ia-bg); border-bottom-left-radius: 4px; color: #2e7d32; border: 1px solid rgba(46, 125, 50, 0.1); }
 
+    /* Estilos do Markdown e Referências Bíblicas */
     .message-content p { margin-bottom: 8px; }
     .message-content p:last-child { margin-bottom: 0; }
     .message-content strong { font-weight: 700; color: #1e3c72; }
     .message-content ul, .message-content ol { margin-left: 20px; margin-bottom: 8px; }
     .message-content li { margin-bottom: 4px; }
+    .message-content .bible-ref { color: #d32f2f; font-weight: bold; } /* Referências em Vermelho Escuro/Elegante */
     
     .message-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 8px; }
     .message-time { font-size: 11px; color: #888; margin-left: auto; }
@@ -174,7 +176,7 @@
       .ia-info h2 { font-size: 15px; }
       .ia-info p { font-size: 11px; }
       .chat-messages { padding: 10px 15px; gap: 10px; }
-      .message { padding: 10px 14px; } /* REMOVIDA A TRAVA DE FONT-SIZE DAQUI */
+      .message { padding: 10px 14px; }
       .chat-input-area { padding: 8px 10px; padding-bottom: max(8px, env(safe-area-inset-bottom)); gap: 6px; }
       .chat-input-area textarea { min-height: 38px; max-height: 80px; padding: 8px 14px; font-size: 14px; }
       .chat-input-area button.send-btn { height: 38px; padding: 0 16px; font-size: 14px; }
@@ -342,6 +344,7 @@
       }
     });
 
+    // Função ajustada para limpar as tags HTML antes de ler em voz alta
     function speakText(text, btnElement) {
       if (!('speechSynthesis' in window)) return alert("Navegador não suporta áudio.");
       if (btnElement.classList.contains('playing')) {
@@ -352,7 +355,11 @@
       window.speechSynthesis.cancel();
       document.querySelectorAll('.btn-audio').forEach(b => b.classList.remove('playing'));
 
-      const cleanText = text.replace(/[*_#`]/g, '');
+      // Converte o Markdown/HTML da IA para texto puro, para não ler tags de código
+      const tempDiv = document.createElement("div");
+      tempDiv.innerHTML = marked.parse(text);
+      const cleanText = tempDiv.textContent || tempDiv.innerText || "";
+
       const utterance = new SpeechSynthesisUtterance(cleanText);
       utterance.lang = 'pt-BR';
       
@@ -396,7 +403,11 @@
         copyBtn.title = "Copiar texto";
         copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>`;
         copyBtn.onclick = () => {
-          navigator.clipboard.writeText(text);
+          // Copia o texto puro, sem tags HTML
+          const tempDiv = document.createElement("div");
+          tempDiv.innerHTML = marked.parse(text);
+          navigator.clipboard.writeText(tempDiv.textContent || tempDiv.innerText || "");
+          
           copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>`;
           setTimeout(() => { copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>`; }, 2000);
         };
