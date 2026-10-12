@@ -70,7 +70,7 @@ module.exports = async function handler(req, res) {
     const groq = new Groq({ apiKey });
     
     const completion = await groq.chat.completions.create({
-      model: "llama-3.1-8b-instant", // Modelo atualizado e suportado atualmente na Groq
+      model: "llama-3.3-70b-versatile", // Modelo ativo e suportado na Groq
       messages: [
         { role: "system", content: promptFinal },
         ...validMessages
