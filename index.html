@@ -3,89 +3,153 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#2c3e50" />
+  <meta name="theme-color" content="#1a252f" />
   <meta name="description" content="Tutor Teo, assistente teológico da Escola de Pregadores." />
+  
+  <!-- Configurações para o app ser instalável -->
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Tutor Teo" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="icon" href="/icons/icon-192.png" type="image/png" />
+  <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+  
   <title>Escola de Pregadores | Tutor Teo</title>
   <style>
     :root {
-      --primary-color: #2c3e50;
+      --primary-gradient: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      --button-gradient: linear-gradient(135deg, #d4af37 0%, #b8960b 100%);
       --secondary-color: #d4af37;
-      --bg-color: #f8f9fa;
-      --text-color: #333;
+      --text-color: #2c3e50;
       --message-user-bg: #e3f2fd;
-      --message-ia-bg: #f1f8e9;
+      --message-ia-bg: #f8f9fa;
     }
+    
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html { height: 100%; }
     body {
       font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      background: var(--bg-color); color: var(--text-color);
+      /* Imagem de fundo com um overlay um pouco mais escuro e azulado para contraste */
+      background: linear-gradient(rgba(15, 32, 39, 0.85), rgba(32, 58, 67, 0.85), rgba(44, 83, 100, 0.85)), url('https://images.unsplash.com/photo-1491841550275-ad7854e35ca6?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
+      background-size: cover;
+      color: var(--text-color);
       display: flex; flex-direction: column; align-items: center;
       min-height: 100%; height: 100%; overflow: hidden;
     }
+
+    /* Cabeçalho principal transparente para mesclar com o fundo */
     header {
-      width: 100%; background: var(--primary-color); color: white;
-      padding: 20px 12px; text-align: center; box-shadow: 0 2px 5px #0000001a;
+      width: 100%; color: white;
+      padding: 30px 15px 15px; text-align: center;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.5);
     }
-    header h1 { font-size: 24px; font-weight: 600; letter-spacing: 1px; }
-    header p { font-size: 14px; color: var(--secondary-color); margin-top: 5px; }
+    header h1 { font-size: 28px; font-weight: 700; letter-spacing: 1px; margin-bottom: 5px; }
+    header p { font-size: 15px; color: var(--secondary-color); font-weight: 500; letter-spacing: 0.5px; }
+
+    /* Container do Chat - Efeito Glassmorphism (Vidro Fosco) */
     .chat-container {
-      width: min(800px, 100%); background: #fff; margin: 20px;
-      border-radius: 12px; box-shadow: 0 8px 20px #00000014;
-      display: flex; flex-direction: column; height: calc(100dvh - 140px); min-height: 400px; overflow: hidden;
+      width: min(850px, 95%);
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      margin: 10px 20px 25px;
+      border-radius: 20px; 
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.2), 0 0 20px rgba(255,255,255,0.1) inset;
+      display: flex; flex-direction: column; height: calc(100dvh - 130px); min-height: 400px; overflow: hidden;
     }
+
     .chat-header {
-      background: #f1f3f5; padding: 12px 16px; border-bottom: 1px solid #e9ecef;
+      background: rgba(255, 255, 255, 0.5);
+      padding: 15px 20px; border-bottom: 1px solid rgba(0, 0, 0, 0.05);
       display: flex; align-items: center; gap: 15px; flex: 0 0 auto;
     }
-    .chat-tools { margin-left: auto; display: flex; align-items: center; gap: 6px; }
-    .chat-tools button { min-width: 36px; min-height: 36px; border: 1px solid #ced4da; border-radius: 9px; background: white; color: var(--primary-color); font-size: 16px; font-weight: 700; cursor: pointer; }
-    .chat-tools button:focus-visible { outline: 2px solid var(--secondary-color); outline-offset: 2px; }
-    .chat-tools .font-label { font-size: 12px; color: #555; min-width: 34px; text-align: center; }
+    
     .ia-avatar {
-      width: 45px; height: 45px; flex: 0 0 45px; border-radius: 50%; background: var(--secondary-color);
-      display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 18px;
+      width: 48px; height: 48px; flex: 0 0 48px; border-radius: 50%; 
+      background: var(--button-gradient);
+      box-shadow: 0 4px 10px rgba(212, 175, 55, 0.4);
+      display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 20px;
     }
-    .ia-info h2 { font-size: 16px; color: var(--primary-color); }
-    .ia-info p { font-size: 12px; color: #6c757d; margin-top: 2px; }
+    .ia-info h2 { font-size: 17px; color: #1e3c72; font-weight: 700; }
+    .ia-info p { font-size: 13px; color: #555; margin-top: 2px; }
+
+    .chat-tools { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+    .chat-tools button { 
+      min-width: 36px; min-height: 36px; border: none; border-radius: 10px; 
+      background: rgba(255, 255, 255, 0.7); color: #1e3c72; font-size: 16px; font-weight: 700; cursor: pointer; 
+      transition: all 0.3s ease; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    .chat-tools button:hover { background: white; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    .chat-tools .font-label { font-size: 13px; color: #555; min-width: 34px; text-align: center; font-weight: 600; }
+
+    /* Barra de rolagem suave */
+    .chat-messages::-webkit-scrollbar { width: 6px; }
+    .chat-messages::-webkit-scrollbar-track { background: transparent; }
+    .chat-messages::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 10px; }
+    .chat-messages::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.3); }
+
     .chat-messages {
-      flex: 1 1 auto; min-height: 0; padding: 20px; overflow-y: auto; overscroll-behavior: contain;
-      -webkit-overflow-scrolling: touch; touch-action: pan-y; display: flex; flex-direction: column; gap: 15px;
+      flex: 1 1 auto; min-height: 0; padding: 25px 20px; overflow-y: auto; overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch; touch-action: pan-y; display: flex; flex-direction: column; gap: 18px;
     }
+
     .message {
-      max-width: 85%; padding: 12px 16px; border-radius: 8px; font-size: var(--message-font-size, 16px);
+      max-width: 85%; padding: 14px 18px; border-radius: 16px; font-size: var(--message-font-size, 16px);
       line-height: 1.5; overflow-wrap: anywhere; white-space: pre-wrap;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.04);
+      position: relative;
     }
-    .message.user { align-self: flex-end; background: var(--message-user-bg); border-bottom-right-radius: 0; color: #0d47a1; }
-    .message.ia { align-self: flex-start; background: var(--message-ia-bg); border-bottom-left-radius: 0; color: #2e7d32; }
-    .message-time { display: block; font-size: 10px; color: #777; margin-top: 5px; text-align: right; }
-    .typing-indicator { display: none; padding: 0 20px 12px; color: #2e7d32; font-size: 13px; font-style: italic; }
+    .message.user { 
+      align-self: flex-end; background: var(--message-user-bg); 
+      border-bottom-right-radius: 4px; color: #0d47a1; border: 1px solid rgba(13, 71, 161, 0.1);
+    }
+    .message.ia { 
+      align-self: flex-start; background: var(--message-ia-bg); 
+      border-bottom-left-radius: 4px; color: #2e7d32; border: 1px solid rgba(46, 125, 50, 0.1);
+    }
+    .message-time { display: block; font-size: 11px; color: #888; margin-top: 6px; text-align: right; }
+    
+    .typing-indicator { display: none; padding: 0 25px 15px; color: #2e7d32; font-size: 14px; font-style: italic; opacity: 0.8; }
+
+    /* Área de Input - Soft e Flutuante */
     .chat-input-area {
-      padding: 12px 16px; background: #fff; border-top: 1px solid #e9ecef; display: flex; gap: 10px; flex: 0 0 auto;
+      padding: 15px 20px; background: rgba(255, 255, 255, 0.6); 
+      border-top: 1px solid rgba(0,0,0,0.05); display: flex; gap: 12px; flex: 0 0 auto;
     }
     .chat-input-area input {
-      min-width: 0; flex: 1; padding: 12px 15px; border: 1px solid #ced4da; border-radius: 25px;
-      font-size: 15px; outline: none;
+      min-width: 0; flex: 1; padding: 14px 20px; border: 1px solid rgba(0,0,0,0.1); border-radius: 30px;
+      font-size: 15px; outline: none; background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.02) inset; transition: all 0.3s ease;
     }
-    .chat-input-area input:focus { border-color: var(--secondary-color); }
+    .chat-input-area input:focus { 
+      border-color: #d4af37; box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2); 
+    }
+    
+    /* Botão com Efeito Glow e Degradê */
     .chat-input-area button {
-      background: var(--primary-color); color: white; border: 0; border-radius: 25px;
-      padding: 0 24px; font-size: 15px; font-weight: 600; cursor: pointer;
+      background: var(--primary-gradient); color: white; border: 0; border-radius: 30px;
+      padding: 0 26px; font-size: 15px; font-weight: 600; cursor: pointer; letter-spacing: 0.5px;
+      transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(30, 60, 114, 0.3);
     }
-    .chat-input-area button:hover { background: #1a252f; }
-    .chat-input-area button:disabled, .chat-input-area input:disabled { opacity: .65; cursor: not-allowed; }
+    .chat-input-area button:hover:not(:disabled) { 
+      transform: translateY(-2px); box-shadow: 0 6px 20px rgba(30, 60, 114, 0.5); 
+    }
+    .chat-input-area button:disabled, .chat-input-area input:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+
     @media (max-width: 600px) {
-      header { padding: 15px 10px; } header h1 { font-size: 20px; }
-      .chat-container { margin: 0; width: 100%; height: calc(100dvh - 78px); height: calc(100vh - 78px); height: calc(100dvh - 78px); min-height: 0; border-radius: 0; }
-      .message { max-width: 92%; }
-      .chat-messages { padding: 14px; }
-      .chat-header { padding: 10px 12px; gap: 10px; }
-      .chat-input-area { padding: 10px 12px; padding-bottom: max(10px, env(safe-area-inset-bottom)); }
-      .chat-input-area input { font-size: 16px; }
-      .chat-tools { gap: 4px; }
-      .chat-tools button { min-width: 32px; min-height: 34px; }
+      header { padding: 20px 10px 10px; } header h1 { font-size: 22px; }
+      .chat-container { margin: 0; width: 100%; height: calc(100dvh - 85px); border-radius: 20px 20px 0 0; border-bottom: none; }
+      .message { max-width: 92%; padding: 12px 15px; }
+      .chat-messages { padding: 15px; gap: 12px; }
+      .chat-header { padding: 12px 15px; }
+      .chat-input-area { padding: 12px 15px; padding-bottom: max(15px, env(safe-area-inset-bottom)); }
+      .chat-input-area input { font-size: 16px; padding: 12px 16px; }
+      .chat-tools { gap: 6px; }
+      .chat-tools button { min-width: 32px; min-height: 32px; }
       .chat-tools .font-label { display: none; }
-      .chat-input-area button { padding: 0 18px; }
+      .chat-input-area button { padding: 0 20px; }
     }
   </style>
 </head>
@@ -118,6 +182,13 @@
   </main>
 
   <script>
+    // Registra o Service Worker para permitir a instalação do PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js');
+      });
+    }
+
     const form = document.getElementById("chat-form");
     const input = document.getElementById("user-input");
     const messagesContainer = document.getElementById("chat-messages");
@@ -218,7 +289,6 @@
       } catch (error) {
         console.error("Erro ao enviar mensagem:", error);
         appendMessage(error.message || "Erro de conexão. Verifique sua internet e tente novamente.", "ia");
-        // Mantém a pergunta salva no histórico visual, mas remove do contexto enviado à IA se falhou.
         if (conversation.length && conversation[conversation.length - 1].role === "user") conversation.pop();
         saveHistory();
       } finally {
