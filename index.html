@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="theme-color" content="#1a252f" />
   <meta name="description" content="Tutor Teo, assistente teológico da Escola de Pregadores." />
   
@@ -56,7 +56,7 @@
       backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
       margin: 10px 20px 25px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.6);
       box-shadow: 0 15px 35px rgba(0,0,0,0.2), 0 0 20px rgba(255,255,255,0.1) inset;
-      display: flex; flex-direction: column; height: calc(100dvh - 130px); min-height: 400px; overflow: hidden;
+      display: flex; flex-direction: column; height: calc(100dvh - 130px); min-height: 250px; overflow: hidden;
       animation: floatIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
     }
 
@@ -124,7 +124,6 @@
       border-top: 1px solid rgba(0,0,0,0.05); display: flex; align-items: flex-end; gap: 10px; flex: 0 0 auto;
     }
     
-    /* Botão de Microfone */
     .btn-mic {
       background: none; border: none; padding: 12px; cursor: pointer; color: #1e3c72;
       border-radius: 50%; transition: all 0.3s ease; opacity: 0.7; flex: 0 0 auto; margin-bottom: 2px;
@@ -133,7 +132,6 @@
     .btn-mic.listening { color: #e74c3c; background: rgba(231, 76, 60, 0.1); animation: pulseText 1s infinite; opacity: 1; }
     .btn-mic svg { width: 22px; height: 22px; fill: currentColor; }
 
-    /* Campo Expansível */
     .chat-input-area textarea {
       min-width: 0; flex: 1; padding: 14px 20px; border: 1px solid rgba(0,0,0,0.1); border-radius: 24px;
       font-size: 15px; outline: none; background: rgba(255, 255, 255, 0.9);
@@ -150,19 +148,39 @@
     .chat-input-area button.send-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(30, 60, 114, 0.5); }
     .chat-input-area button.send-btn:disabled, .chat-input-area textarea:disabled { opacity: .6; cursor: not-allowed; transform: none; }
 
+    /* MODO RETRATO: Celulares em pé */
     @media (max-width: 600px) {
-      header { padding: 20px 10px 10px; } header h1 { font-size: 22px; }
-      .chat-container { margin: 0; width: 100%; height: calc(100dvh - 85px); border-radius: 20px 20px 0 0; border-bottom: none; }
+      header { padding: 15px 10px 10px; } header h1 { font-size: 22px; }
+      .chat-container { margin: 0; width: 100%; height: calc(100dvh - 75px); border-radius: 20px 20px 0 0; border-bottom: none; }
       .message { max-width: 92%; padding: 12px 15px; }
       .chat-messages { padding: 15px; gap: 12px; }
       .chat-header { padding: 12px 15px; }
       .chat-input-area { padding: 10px; padding-bottom: max(10px, env(safe-area-inset-bottom)); gap: 6px; }
-      .chat-input-area textarea { font-size: 16px; padding: 12px 16px; min-height: 45px; }
+      .chat-input-area textarea { font-size: 16px; padding: 12px 16px; min-height: 45px; max-height: 120px; }
       .chat-input-area button.send-btn { height: 45px; padding: 0 16px; }
       .btn-mic { padding: 10px; }
       .chat-tools { gap: 4px; }
       .chat-tools button { min-width: 30px; min-height: 30px; }
       .chat-tools .font-label { display: none; }
+    }
+
+    /* MODO PAISAGEM: Celulares deitados */
+    @media (max-height: 500px) and (orientation: landscape) {
+      header { padding: 5px 10px; } 
+      header h1 { font-size: 18px; margin-bottom: 0; }
+      header p { display: none; } /* Esconde o subtítulo para poupar espaço vertical */
+      .chat-container { margin: 5px; width: calc(100% - 10px); height: calc(100dvh - 45px); border-radius: 12px; }
+      .chat-header { padding: 8px 15px; }
+      .ia-avatar { width: 40px; height: 40px; flex: 0 0 40px; }
+      .ia-info h2 { font-size: 15px; }
+      .ia-info p { font-size: 11px; }
+      .chat-messages { padding: 10px 15px; gap: 10px; }
+      .message { padding: 10px 14px; font-size: 14px; }
+      .chat-input-area { padding: 8px 10px; padding-bottom: max(8px, env(safe-area-inset-bottom)); gap: 6px; }
+      .chat-input-area textarea { min-height: 38px; max-height: 80px; padding: 8px 14px; font-size: 14px; }
+      .chat-input-area button.send-btn { height: 38px; padding: 0 16px; font-size: 14px; }
+      .btn-mic { padding: 8px; }
+      .btn-mic svg { width: 18px; height: 18px; }
     }
   </style>
 </head>
