@@ -37,7 +37,7 @@
       min-height: 100%; height: 100%; overflow: hidden;
     }
 
-    /* Animações (Keyframes) */
+    /* Animações */
     @keyframes floatIn {
       from { opacity: 0; transform: translateY(30px); }
       to { opacity: 1; transform: translateY(0); }
@@ -80,11 +80,11 @@
     }
     
     .ia-avatar {
-      width: 48px; height: 48px; flex: 0 0 48px; border-radius: 50%; 
-      background: var(--button-gradient);
-      box-shadow: 0 4px 10px rgba(212, 175, 55, 0.4);
-      display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 20px;
+      width: 52px; height: 52px; flex: 0 0 52px; border-radius: 50%; 
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+      background: #fff;
     }
+    
     .ia-info h2 { font-size: 17px; color: #1e3c72; font-weight: 700; }
     .ia-info p { font-size: 13px; color: #555; margin-top: 2px; }
 
@@ -112,7 +112,6 @@
       line-height: 1.5; overflow-wrap: anywhere; white-space: pre-wrap;
       box-shadow: 0 3px 10px rgba(0,0,0,0.04);
       position: relative;
-      /* Aplica a animação de entrada em cada mensagem */
       animation: messageSlideIn 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
     }
     .message.user { 
@@ -127,7 +126,6 @@
     
     .typing-indicator { 
       display: none; padding: 0 25px 15px; color: #2e7d32; font-size: 14px; font-style: italic; 
-      /* Efeito de respiração/pulso */
       animation: pulseText 1.5s infinite ease-in-out; 
     }
 
@@ -177,7 +175,54 @@
 
   <main class="chat-container" aria-label="Conversa com o Tutor Teo">
     <div class="chat-header">
-      <div class="ia-avatar" aria-hidden="true">T</div>
+      
+      <!-- Avatar Cartoon Masculino Jovem, com Óculos e Sem Boné (Código Nativo) -->
+      <svg class="ia-avatar" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="avatar-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#FFD700" />
+            <stop offset="100%" stop-color="#FF8C00" />
+          </linearGradient>
+        </defs>
+        <!-- Fundo circular com gradiente -->
+        <circle cx="50" cy="50" r="50" fill="url(#avatar-grad)" />
+        
+        <!-- Tronco (Camiseta infantil azul) -->
+        <path d="M 25 100 C 25 75, 35 70, 50 70 C 65 70, 75 75, 75 100" fill="#3498db" stroke="#1a252f" stroke-width="3"/>
+        <path d="M 38 72 L 62 72" stroke="#1a252f" stroke-width="3" stroke-linecap="round"/>
+        
+        <!-- Orelhas -->
+        <circle cx="27" cy="52" r="4" fill="#ffddb0" stroke="#1a252f" stroke-width="3"/>
+        <circle cx="73" cy="52" r="4" fill="#ffddb0" stroke="#1a252f" stroke-width="3"/>
+
+        <!-- Cabeça redondinha -->
+        <circle cx="50" cy="50" r="23" fill="#ffddb0" stroke="#1a252f" stroke-width="3"/>
+        
+        <!-- Cabelo (sem boné) -->
+        <path d="M 26 45 C 22 18, 78 18, 74 45 C 65 32, 50 28, 26 45 Z" fill="#5c3a21" stroke="#1a252f" stroke-width="3" stroke-linejoin="round"/>
+        <path d="M 40 24 Q 50 15 60 24" fill="none" stroke="#1a252f" stroke-width="2" stroke-linecap="round"/>
+
+        <!-- Olhinhos grandes de menino (atrás das lentes) -->
+        <circle cx="40" cy="48" r="4" fill="#1a252f"/>
+        <circle cx="60" cy="48" r="4" fill="#1a252f"/>
+        <circle cx="41" cy="47" r="1.5" fill="#ffffff"/>
+        <circle cx="61" cy="47" r="1.5" fill="#ffffff"/>
+        
+        <!-- Óculos grandes redondos (estilo estudioso) -->
+        <circle cx="40" cy="48" r="8" fill="rgba(255,255,255,0.2)" stroke="#1a252f" stroke-width="2.5"/>
+        <circle cx="60" cy="48" r="8" fill="rgba(255,255,255,0.2)" stroke="#1a252f" stroke-width="2.5"/>
+        <path d="M 48 48 L 52 48" stroke="#1a252f" stroke-width="2.5"/>
+        <path d="M 32 48 L 26 46" stroke="#1a252f" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M 68 48 L 74 46" stroke="#1a252f" stroke-width="2.5" stroke-linecap="round"/>
+
+        <!-- Bochechas rosadas de criança -->
+        <circle cx="34" cy="58" r="3.5" fill="#ff9999" opacity="0.7"/>
+        <circle cx="66" cy="58" r="3.5" fill="#ff9999" opacity="0.7"/>
+        
+        <!-- Sorriso infantil e simpático -->
+        <path d="M 44 59 Q 50 65 56 59" fill="none" stroke="#1a252f" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+      
       <div class="ia-info">
         <h2>Tutor Teo</h2>
         <p>Seu Assistente Teológico</p>
@@ -198,7 +243,6 @@
   </main>
 
   <script>
-    // Registra o Service Worker para permitir a instalação do PWA
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js');
