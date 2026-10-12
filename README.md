@@ -1,40 +1,36 @@
 # Tutor Teo — Escola de Pregadores
 
-## Estrutura
+Aplicativo web responsivo e instalável (PWA), com interface em português e API serverless na Vercel.
 
-```text
-tutor-teo/
-├── api/
-│   └── chat.js
-├── index.html
-├── package.json
-├── vercel.json
-├── .env.example
-└── .gitignore
-```
+## Requisitos
+- Node.js LTS
+- Conta na Vercel
+- Chave da API Groq
 
-## Configuração local
+## Executar localmente
+1. Instale as dependências: `npm install`
+2. Crie `.env.local` na raiz com:
+   ```env
+   GROQ_API_KEY=sua_chave_real
+   GROQ_MODEL=openai/gpt-oss-20b
+   ```
+3. Execute: `npm run dev`
 
-1. Instale Node.js LTS.
-2. Abra um terminal nesta pasta.
-3. Execute `npm install`.
-4. Instale a CLI da Vercel se necessário: `npm install -g vercel`.
-5. Copie `.env.example` para `.env.local` e substitua `sua_chave_groq_aqui` por uma chave criada no painel da Groq.
-6. Execute `npx vercel dev` e abra o endereço local informado no terminal.
+Não publique sua chave da Groq no GitHub. Configure-a como variável de ambiente na Vercel.
 
-Nunca coloque a chave da Groq dentro do `index.html` nem a publique no GitHub.
+## Publicar
+1. Envie os arquivos deste projeto para um repositório GitHub.
+2. Na Vercel, escolha **Add New → Project** e importe esse repositório.
+3. Em **Settings → Environment Variables**, adicione `GROQ_API_KEY` e `GROQ_MODEL` (`openai/gpt-oss-20b`, desde que disponível para sua conta).
+4. Faça o deploy ou redeploy.
+5. Abra o domínio HTTPS fornecido pela Vercel.
 
-## Publicação na Vercel
+## Instalar como aplicativo
+- **Android/Chrome:** abra o domínio da Vercel e use “Instalar aplicativo” ou “Adicionar à tela inicial”.
+- **Desktop/Chrome ou Edge:** use o ícone/opção de instalação do navegador; o botão do site aparece quando o navegador oferece o evento de instalação.
+- **iPhone/iPad:** abra no Safari, toque em Compartilhar e selecione “Adicionar à Tela de Início”.
 
-1. Envie estes arquivos para um repositório Git ou importe a pasta pelo fluxo de publicação disponível na Vercel.
-2. Nas configurações do projeto na Vercel, abra **Settings → Environment Variables**.
-3. Crie `GROQ_API_KEY` com o valor da sua chave. Opcionalmente, configure `GROQ_MODEL` como `openai/gpt-oss-20b`.
-4. Faça um novo deploy depois de adicionar ou alterar as variáveis.
+O app guarda a interface básica para abrir offline, mas as respostas da IA precisam de internet. O histórico da conversa fica apenas na memória da página e reinicia ao recarregar.
 
-A Vercel reconhece `api/chat.js` como uma função serverless. O frontend chama essa função pelo caminho `/api/chat`.
-
-## Observações
-
-- O histórico é mantido apenas na memória da página atual; recarregar a página apaga a conversa.
-- Esta versão valida mensagens e evita inserir conteúdo de chat como HTML, mas não inclui login nem limitação de requisições por usuário. Para uso público, adicione rate limiting e, se necessário, autenticação para controlar custos e abuso.
-- O modelo padrão deve estar habilitado na sua conta Groq. Você pode trocar `GROQ_MODEL` nas variáveis de ambiente sem editar o código.
+## Importante sobre GitHub
+O GitHub guarda o código. Para que `/api/chat` funcione com a chave secreta da Groq, publique o projeto na Vercel (ou em outro host com funções de servidor). GitHub Pages sozinho hospeda arquivos estáticos e não executa `api/chat.js`.
