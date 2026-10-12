@@ -1,21 +1,19 @@
+
 {
-  "name": "escola-de-pregadores-tutor-teo",
-  "version": "1.1.0",
+  "name": "escola-de-pregadores",
+  "version": "1.0.0",
   "private": true,
+  "type": "module",
   "description": "Assistente teológico Tutor Teo da Escola de Pregadores",
-  "engines": {
-    "node": ">=18.x"
-  },
   "scripts": {
     "dev": "vercel dev",
-    "preparar-pdf": "node preparar-pdf.js"
+    "start": "vercel dev"
   },
   "dependencies": {
-    "fuse.js": "^7.5.0",
-    "groq-sdk": "^0.30.0",
-    "pdf-parse": "^2.4.5"
+    "fuse.js": "^7.1.0",
+    "groq-sdk": "^0.30.0"
   },
   "devDependencies": {
-    "vercel": "^41.0.0"
+    "vercel": "^48.0.0"
   }
 }
