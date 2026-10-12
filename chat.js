@@ -82,7 +82,7 @@ export default async function handler(req, res) {
         ...validMessages
       ],
       temperature: 0.4,
-      max_completion_tokens: 1500
+      max_tokens: 4000 // Limite de texto expandido para evitar que a IA seja cortada no meio de respostas longas
     });
 
     const resposta =

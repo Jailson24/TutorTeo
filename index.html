@@ -97,7 +97,6 @@
     .message.user { align-self: flex-end; background: var(--message-user-bg); border-bottom-right-radius: 4px; color: #0d47a1; border: 1px solid rgba(13, 71, 161, 0.1); white-space: pre-wrap; }
     .message.ia { align-self: flex-start; background: var(--message-ia-bg); border-bottom-left-radius: 4px; color: #2e7d32; border: 1px solid rgba(46, 125, 50, 0.1); }
 
-    /* Estilos do Markdown */
     .message-content p { margin-bottom: 8px; }
     .message-content p:last-child { margin-bottom: 0; }
     .message-content strong { font-weight: 700; color: #1e3c72; }
@@ -168,14 +167,14 @@
     @media (max-height: 500px) and (orientation: landscape) {
       header { padding: 5px 10px; } 
       header h1 { font-size: 18px; margin-bottom: 0; }
-      header p { display: none; } /* Esconde o subtítulo para poupar espaço vertical */
+      header p { display: none; }
       .chat-container { margin: 5px; width: calc(100% - 10px); height: calc(100dvh - 45px); border-radius: 12px; }
       .chat-header { padding: 8px 15px; }
       .ia-avatar { width: 40px; height: 40px; flex: 0 0 40px; }
       .ia-info h2 { font-size: 15px; }
       .ia-info p { font-size: 11px; }
       .chat-messages { padding: 10px 15px; gap: 10px; }
-      .message { padding: 10px 14px; font-size: 14px; }
+      .message { padding: 10px 14px; } /* REMOVIDA A TRAVA DE FONT-SIZE DAQUI */
       .chat-input-area { padding: 8px 10px; padding-bottom: max(8px, env(safe-area-inset-bottom)); gap: 6px; }
       .chat-input-area textarea { min-height: 38px; max-height: 80px; padding: 8px 14px; font-size: 14px; }
       .chat-input-area button.send-btn { height: 38px; padding: 0 16px; font-size: 14px; }
@@ -260,7 +259,6 @@
       </div>
       
       <div class="chat-tools">
-        <!-- Botão Limpar Conversa -->
         <button type="button" id="clear-chat" title="Limpar conversa">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
         </button>
@@ -274,14 +272,10 @@
     <div class="typing-indicator" id="typing-indicator">Tutor Teo está preparando a resposta...</div>
     
     <form class="chat-input-area" id="chat-form">
-      <!-- Botão Microfone -->
       <button type="button" id="mic-button" class="btn-mic" title="Falar">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg>
       </button>
-      
-      <!-- Campo Textarea auto-expansível -->
       <textarea id="user-input" rows="1" maxlength="5000" placeholder="Digite sua pergunta..." required></textarea>
-      
       <button type="submit" id="send-button" class="send-btn">Enviar</button>
     </form>
   </main>
@@ -304,7 +298,6 @@
     let fontSize = 16;
     let conversation = [];
 
-    // AUTO-EXPANDIR TEXTAREA E ENVIAR COM ENTER
     input.addEventListener("input", function() {
       this.style.height = 'auto';
       this.style.height = (this.scrollHeight) + 'px';
@@ -317,7 +310,6 @@
       }
     });
 
-    // RECONHECIMENTO DE VOZ
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRecognition) {
       const recognition = new SpeechRecognition();
@@ -333,7 +325,7 @@
       recognition.onresult = (event) => {
         const transcript = event.results[0][0].transcript;
         input.value += (input.value ? ' ' : '') + transcript;
-        input.dispatchEvent(new Event('input')); // força auto-expandir
+        input.dispatchEvent(new Event('input'));
       };
       recognition.onend = () => { micBtn.classList.remove('listening'); input.placeholder = "Digite sua pergunta..."; };
       recognition.onerror = () => { micBtn.classList.remove('listening'); input.placeholder = "Digite sua pergunta..."; };
@@ -341,7 +333,6 @@
       micBtn.style.display = 'none';
     }
 
-    // LIMPAR CONVERSA
     clearBtn.addEventListener('click', () => {
       if(confirm('Tem certeza que deseja apagar todo o histórico da conversa?')) {
         conversation = [];
@@ -351,7 +342,6 @@
       }
     });
 
-    // SINTETIZADOR DE VOZ
     function speakText(text, btnElement) {
       if (!('speechSynthesis' in window)) return alert("Navegador não suporta áudio.");
       if (btnElement.classList.contains('playing')) {
@@ -362,7 +352,6 @@
       window.speechSynthesis.cancel();
       document.querySelectorAll('.btn-audio').forEach(b => b.classList.remove('playing'));
 
-      // Remove formatações Markdown da fala para ficar natural
       const cleanText = text.replace(/[*_#`]/g, '');
       const utterance = new SpeechSynthesisUtterance(cleanText);
       utterance.lang = 'pt-BR';
@@ -384,7 +373,6 @@
       const contentDiv = document.createElement("div");
       contentDiv.className = "message-content";
       
-      // Renderiza Markdown para IA, texto normal para Usuário
       if (sender === "ia") contentDiv.innerHTML = marked.parse(text);
       else contentDiv.textContent = text;
       
@@ -397,21 +385,19 @@
         const actionsDiv = document.createElement("div");
         actionsDiv.className = "message-actions";
 
-        // Botão de Áudio
         const audioBtn = document.createElement("button");
         audioBtn.className = "btn-action btn-audio";
         audioBtn.title = "Ouvir resposta";
         audioBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>`;
         audioBtn.onclick = () => speakText(text, audioBtn);
         
-        // Botão de Copiar
         const copyBtn = document.createElement("button");
         copyBtn.className = "btn-action";
         copyBtn.title = "Copiar texto";
         copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>`;
         copyBtn.onclick = () => {
           navigator.clipboard.writeText(text);
-          copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>`; // Ícone de Check
+          copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>`;
           setTimeout(() => { copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>`; }, 2000);
         };
 
@@ -468,7 +454,7 @@
       saveHistory();
       
       input.value = "";
-      input.style.height = 'auto'; // reseta o tamanho do textarea
+      input.style.height = 'auto';
       sendButton.disabled = true;
       input.disabled = true;
       micBtn.disabled = true;
