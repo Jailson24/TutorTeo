@@ -1,4 +1,3 @@
-
 import Groq from "groq-sdk";
 
 const SYSTEM_PROMPT = `
@@ -11,6 +10,7 @@ DIRETRIZES DE COMUNICAÇÃO:
 2. Apresente uma visão cristã evangélica sólida, ortodoxa e cristocêntrica.
 3. Ao apresentar conceitos históricos ou teológicos, cite autores e fontes quando houver fundamento confiável para isso. Nunca invente citações ou atribua ideias sem segurança.
 4. Sempre que pertinente, informe o livro, capítulo e versículo bíblico que fundamenta a resposta.
+5. Ao explicar passagens bíblicas, faça comparações entre diferentes traduções, utilizando sempre a versão NAA (Nova Almeida Atualizada) como o texto principal e base de comparação.
 
 FONTES DE REFERÊNCIA AUTORIZADAS:
 - História e contexto antigo: Flávio Josefo e Eusébio de Cesareia.
