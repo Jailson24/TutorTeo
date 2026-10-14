@@ -353,7 +353,6 @@
       }
     });
 
-    // Função ajustada para limpar as tags HTML antes de ler em voz alta
     function speakText(text, btnElement) {
       if (!('speechSynthesis' in window)) return alert("Navegador não suporta áudio.");
       if (btnElement.classList.contains('playing')) {
@@ -364,7 +363,6 @@
       window.speechSynthesis.cancel();
       document.querySelectorAll('.btn-audio').forEach(b => b.classList.remove('playing'));
 
-      // Converte o Markdown/HTML da IA para texto puro, para não ler tags de código
       const tempDiv = document.createElement("div");
       tempDiv.innerHTML = marked.parse(text);
       const cleanText = tempDiv.textContent || tempDiv.innerText || "";
@@ -384,14 +382,40 @@
 
     function reportarErroWhatsApp(textoIA) {
       const numero = "5521997882718";
-      let mensagem = "Olá, encontrei um erro no Tutor Teo.";
       
-      // Anexa a resposta que apresentou o erro no contexto da mensagem
+      // Constrói o log completo do erro
+      let logCompleto = "⚠️ *Reporte de Erro - Tutor Teo*\n\n";
+      
+      if (conversation && conversation.length > 0) {
+        const ultimaMensagemUsuario = conversation.slice().reverse().find(m => m.role === "user");
+        if (ultimaMensagemUsuario && ultimaMensagemUsuario.content) {
+          logCompleto += "*MINHA PERGUNTA:*\n" + ultimaMensagemUsuario.content + "\n\n";
+        }
+      }
+      
       if (textoIA) {
-         let trechoIA = textoIA.substring(0, 150) + (textoIA.length > 150 ? "..." : "");
-         mensagem += "\n\nO erro ocorreu nesta resposta gerada:\n\"" + trechoIA + "\"";
+         logCompleto += "*RESPOSTA DA IA:*\n" + textoIA;
       }
 
+      // Tenta copiar todo o conteúdo para a área de transferência do usuário automaticamente
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(logCompleto).then(() => {
+          // Se conseguir copiar, abre o WhatsApp com um link curto pedindo apenas para colar
+          let textoCurto = "Olá, encontrei um erro no Tutor Teo. A conversa completa já foi copiada no meu celular/computador, estou colando abaixo:\n\n[ COLE AQUI O TEXTO COPIADO ]";
+          const url = `https://wa.me/${numero}?text=${encodeURIComponent(textoCurto)}`;
+          window.open(url, '_blank');
+        }).catch(err => {
+          fallbackWhatsApp(textoIA, numero);
+        });
+      } else {
+        fallbackWhatsApp(textoIA, numero);
+      }
+    }
+
+    // Função de fallback caso o navegador bloqueie o copy-paste automático
+    function fallbackWhatsApp(textoIA, numero) {
+      let trechoIA = textoIA ? textoIA.substring(0, 1000) + "...\n[Mensagem cortada pelo limite do WhatsApp]" : "";
+      let mensagem = "Olá, encontrei um erro no Tutor Teo.\n\nResposta gerada:\n" + trechoIA;
       const url = `https://wa.me/${numero}?text=${encodeURIComponent(mensagem)}`;
       window.open(url, '_blank');
     }
@@ -477,8 +501,9 @@
     }
 
     document.getElementById("font-down").addEventListener("click", () => { fontSize = Math.max(14, fontSize - 1); applyFontSize(); });
-    document.getElementById("font-up").addEventListener("click", () => { fontSize = Math.min(24, fontSize + 1); applyFontSize(); });
-    try { fontSize = Math.min(24, Math.max(14, Number(localStorage.getItem(FONT_KEY)) || 16)); } catch (_) {}
+    // Limite máximo de fonte aumentado para 40px
+    document.getElementById("font-up").addEventListener("click", () => { fontSize = Math.min(40, fontSize + 1); applyFontSize(); });
+    try { fontSize = Math.min(40, Math.max(14, Number(localStorage.getItem(FONT_KEY)) || 16)); } catch (_) {}
     applyFontSize();
     loadHistory();
 
