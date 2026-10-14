@@ -103,11 +103,11 @@
     .message-content strong { font-weight: 700; color: #1e3c72; }
     .message-content ul, .message-content ol { margin-left: 20px; margin-bottom: 8px; }
     .message-content li { margin-bottom: 4px; }
-    .message-content .bible-ref { color: #d32f2f; font-weight: bold; } /* Referências em Vermelho Escuro/Elegante */
+    .message-content .bible-ref { color: #d32f2f; font-weight: bold; }
     
     .message-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 8px; }
     .message-time { font-size: 11px; color: #888; margin-left: auto; }
-    .message-actions { display: flex; gap: 8px; }
+    .message-actions { display: flex; gap: 8px; align-items: center; }
     
     .btn-action {
       background: none; border: none; cursor: pointer; color: #1e3c72; 
@@ -117,6 +117,14 @@
     .btn-action:hover { background: rgba(30, 60, 114, 0.1); opacity: 1; transform: scale(1.1); }
     .btn-action.playing { color: #d4af37; opacity: 1; animation: pulseText 1s infinite; }
     .btn-action svg { width: 18px; height: 18px; fill: currentColor; }
+
+    /* Estilo específico para o link de reportar erro no rodapé da mensagem */
+    .btn-report {
+      background: none; border: none; cursor: pointer; color: #e74c3c;
+      font-size: 12px; font-weight: 600; padding: 4px 8px; border-radius: 12px;
+      transition: all 0.2s ease; display: flex; align-items: center; opacity: 0.7;
+    }
+    .btn-report:hover { background: rgba(231, 76, 60, 0.1); opacity: 1; }
 
     .typing-indicator { display: none; padding: 0 25px 15px; color: #2e7d32; font-size: 14px; font-style: italic; animation: pulseText 1.5s infinite ease-in-out; }
 
@@ -163,6 +171,7 @@
       .chat-tools { gap: 4px; }
       .chat-tools button { min-width: 30px; min-height: 30px; }
       .chat-tools .font-label { display: none; }
+      .btn-report { font-size: 11px; padding: 4px 6px; }
     }
 
     /* MODO PAISAGEM: Celulares deitados */
@@ -373,6 +382,20 @@
     function getCurrentTime() { return new Intl.DateTimeFormat("pt-BR", { hour: "2-digit", minute: "2-digit" }).format(new Date()); }
     function saveHistory() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(conversation)); } catch (e) {} }
 
+    function reportarErroWhatsApp(textoIA) {
+      const numero = "5521997882718";
+      let mensagem = "Olá, encontrei um erro no Tutor Teo.";
+      
+      // Anexa a resposta que apresentou o erro no contexto da mensagem
+      if (textoIA) {
+         let trechoIA = textoIA.substring(0, 150) + (textoIA.length > 150 ? "..." : "");
+         mensagem += "\n\nO erro ocorreu nesta resposta gerada:\n\"" + trechoIA + "\"";
+      }
+
+      const url = `https://wa.me/${numero}?text=${encodeURIComponent(mensagem)}`;
+      window.open(url, '_blank');
+    }
+
     function appendMessage(text, sender, timeText = getCurrentTime(), shouldScroll = true) {
       const messageDiv = document.createElement("div");
       messageDiv.className = `message ${sender}`;
@@ -403,7 +426,6 @@
         copyBtn.title = "Copiar texto";
         copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>`;
         copyBtn.onclick = () => {
-          // Copia o texto puro, sem tags HTML
           const tempDiv = document.createElement("div");
           tempDiv.innerHTML = marked.parse(text);
           navigator.clipboard.writeText(tempDiv.textContent || tempDiv.innerText || "");
@@ -412,8 +434,16 @@
           setTimeout(() => { copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>`; }, 2000);
         };
 
+        const reportBtn = document.createElement("button");
+        reportBtn.className = "btn-report";
+        reportBtn.title = "Reportar erro via WhatsApp";
+        reportBtn.textContent = "Reportar erro";
+        reportBtn.onclick = () => reportarErroWhatsApp(text);
+
         actionsDiv.appendChild(audioBtn);
         actionsDiv.appendChild(copyBtn);
+        actionsDiv.appendChild(reportBtn);
+        
         footerDiv.appendChild(actionsDiv);
       }
 
