@@ -2,8 +2,8 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="theme-color" content="#1a252f" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#14233f" />
   <meta name="description" content="Tutor Teo, assistente teológico da Escola de Pregadores." />
   
   <!-- Configurações para o app ser instalável -->
@@ -16,279 +16,167 @@
   <link rel="apple-touch-icon" href="/icons/icon-192.png" />
   
   <!-- Biblioteca para renderizar Formatação (Negrito, Listas, etc) -->
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
   
   <title>Escola de Pregadores | Tutor Teo</title>
   <style>
-    :root {
-      --primary-gradient: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-      --button-gradient: linear-gradient(135deg, #d4af37 0%, #b8960b 100%);
-      --secondary-color: #d4af37;
-      --text-color: #2c3e50;
-      --message-user-bg: #e3f2fd;
-      --message-ia-bg: #f8f9fa;
-    }
-    
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html { height: 100%; }
-    body {
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(rgba(15, 32, 39, 0.85), rgba(32, 58, 67, 0.85), rgba(44, 83, 100, 0.85)), url('https://images.unsplash.com/photo-1491841550275-ad7854e35ca6?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
-      background-size: cover;
-      color: var(--text-color);
-      display: flex; flex-direction: column; align-items: center;
-      min-height: 100%; height: 100%; overflow: hidden;
-    }
+    :root{--navy:#14233f;--navy-2:#1e3c72;--gold:#c9a227;--gold-2:#e3c457;--gold-soft:#f7f0d6;--ink:#1f2a3d;--muted:#6b778c;--line:#e2e7ef;--pad:clamp(14px,2.4vw,36px)}
+    *{box-sizing:border-box;margin:0;padding:0}
+    [hidden]{display:none!important}
+    html,body{height:100%}
+    body{font-family:Inter,"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;color:var(--ink);background:#0f2145 url(/assets/fundo.svg) center/cover no-repeat;display:flex;flex-direction:column;height:100dvh;overflow:hidden}
+    body::before{content:"";position:fixed;inset:-20%;pointer-events:none;z-index:0;background:radial-gradient(38% 34% at 22% 22%,rgba(227,196,87,.17),transparent 70%),radial-gradient(34% 30% at 82% 72%,rgba(120,160,240,.2),transparent 70%);animation:drift 26s ease-in-out infinite alternate}
+    @keyframes drift{to{transform:translate3d(4%,3%,0) scale(1.1)}}
+    @keyframes rise{from{opacity:0;transform:translateY(10px) scale(.99)}to{opacity:1;transform:none}}
+    @keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
+    @keyframes bounce{0%,80%,100%{transform:translateY(0);opacity:.4}40%{transform:translateY(-5px);opacity:1}}
 
-    @keyframes floatIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes messageSlideIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes pulseText { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; transform: scale(1.05); } }
+    .topbar,.chat-container{position:relative;z-index:1}
+    .topbar{flex:0 0 auto;background:rgba(10,22,46,.55);-webkit-backdrop-filter:blur(16px) saturate(150%);backdrop-filter:blur(16px) saturate(150%);color:#fff;padding:calc(10px + env(safe-area-inset-top)) var(--pad) 10px;box-shadow:0 1px 0 rgba(227,196,87,.55),0 8px 30px rgba(0,0,0,.25)}
+    .topbar-inner{width:100%;display:flex;align-items:center;gap:14px}
+    .ia-avatar{width:46px;height:46px;flex:0 0 46px;border-radius:14px;box-shadow:0 0 0 2px rgba(227,196,87,.75),0 0 20px rgba(227,196,87,.35)}
+    .ia-info h1{font-size:clamp(17px,1.4vw,20px);font-weight:700;letter-spacing:.3px;line-height:1.2}
+    .ia-info h1::after{content:"";display:inline-block;width:8px;height:8px;margin-left:9px;border-radius:50%;background:#4ade80;box-shadow:0 0 9px #4ade80;vertical-align:middle}
+    .ia-info p{font-size:12.5px;color:var(--gold-2);margin-top:2px;letter-spacing:.3px}
+    .chat-tools{margin-left:auto;display:flex;align-items:center;gap:6px}
+    .chat-tools button{min-width:38px;min-height:38px;border:1px solid rgba(255,255,255,.22);border-radius:11px;background:rgba(255,255,255,.08);color:#fff;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+    .chat-tools button:hover{background:rgba(255,255,255,.2);transform:translateY(-1px)}
+    .chat-tools .font-label{font-size:12px;color:#c9d3e6;min-width:34px;text-align:center}
+    button:focus-visible,textarea:focus-visible,input:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 
-    header {
-      width: 100%; color: white; padding: 30px 15px 15px; text-align: center;
-      text-shadow: 0 2px 10px rgba(0,0,0,0.5); animation: floatIn 0.8s ease-out forwards;
-    }
-    header h1 { font-size: 28px; font-weight: 700; letter-spacing: 1px; margin-bottom: 5px; }
-    header p { font-size: 15px; color: var(--secondary-color); font-weight: 500; letter-spacing: 0.5px; }
+    .chat-container{flex:1 1 auto;min-height:0;width:min(1560px,calc(100% - clamp(0px,4vw,56px)));margin:clamp(0px,1.6vw,22px) auto;display:flex;flex-direction:column;background:rgba(8,18,40,.34);-webkit-backdrop-filter:blur(10px) saturate(140%);backdrop-filter:blur(10px) saturate(140%);border:1px solid rgba(255,255,255,.16);border-radius:clamp(0px,1.5vw,24px);box-shadow:0 24px 70px rgba(0,0,0,.4);overflow:hidden}
 
-    .chat-container {
-      width: min(850px, 95%); background: rgba(255, 255, 255, 0.85);
-      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-      margin: 10px 20px 25px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.6);
-      box-shadow: 0 15px 35px rgba(0,0,0,0.2), 0 0 20px rgba(255,255,255,0.1) inset;
-      display: flex; flex-direction: column; height: calc(100dvh - 130px); min-height: 250px; overflow: hidden;
-      animation: floatIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-    }
+    .name-bar label{color:var(--navy);font-weight:600}
+    .name-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px var(--pad) 0;padding:11px 14px;background:var(--gold-soft);border:1px solid #e6d88f;border-radius:14px;font-size:14px}
+    .name-bar input{flex:1 1 140px;min-width:0;padding:9px 12px;border:1px solid #d9cc8a;border-radius:9px;font-size:16px;font-family:inherit;background:#fff}
+    .name-bar button{border:0;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+    .name-bar .ok{background:var(--navy);color:#fff}
+    .name-bar .skip{background:transparent;color:var(--muted)}
 
-    .chat-header {
-      background: rgba(255, 255, 255, 0.5); padding: 15px 20px; border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-      display: flex; align-items: center; gap: 15px; flex: 0 0 auto;
-    }
-    
-    .ia-avatar { width: 54px; height: 54px; flex: 0 0 54px; border-radius: 50%; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); background: #fff; }
-    .ia-info h2 { font-size: 17px; color: #1e3c72; font-weight: 700; }
-    .ia-info p { font-size: 13px; color: #555; margin-top: 2px; }
+    .chat-messages{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:var(--pad);display:flex;flex-direction:column;gap:18px;scroll-behavior:smooth}
+    .chat-messages::-webkit-scrollbar{width:8px}
+    .chat-messages::-webkit-scrollbar-thumb{background:rgba(255,255,255,.25);border-radius:10px}
 
-    .chat-tools { margin-left: auto; display: flex; align-items: center; gap: 6px; }
-    .chat-tools button { 
-      min-width: 34px; min-height: 34px; border: none; border-radius: 10px; 
-      background: rgba(255, 255, 255, 0.7); color: #1e3c72; font-size: 15px; font-weight: 700; cursor: pointer; 
-      transition: all 0.3s ease; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center;
-    }
-    .chat-tools button:hover { background: white; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    .chat-tools .font-label { font-size: 13px; color: #555; min-width: 32px; text-align: center; font-weight: 600; }
+    .message{position:relative;max-width:min(80%,1000px);padding:14px 18px;font-size:var(--message-font-size,16px);line-height:1.65;overflow-wrap:anywhere;display:flex;flex-direction:column;animation:rise .35s cubic-bezier(.2,.8,.2,1) both}
+    .message.user{align-self:flex-end;max-width:min(74%,840px);background:linear-gradient(135deg,#3568c0,#1e3c72);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:18px 18px 4px 18px;box-shadow:0 8px 22px rgba(0,0,0,.3);white-space:pre-wrap}
+    .message.ia{align-self:flex-start;margin-left:48px;background:rgba(255,255,255,.97);border:1px solid rgba(20,35,63,.07);border-radius:4px 18px 18px 18px;box-shadow:inset 3px 0 0 var(--gold),0 6px 22px rgba(20,35,63,.09)}
+    .message.ia::before{content:"";position:absolute;left:-48px;top:0;width:36px;height:36px;border-radius:11px;background:url(/icons/avatar.svg) center/cover;box-shadow:0 0 0 2px rgba(201,162,39,.6),0 3px 10px rgba(20,35,63,.2)}
+    .message.user .message-footer{border-top:0;margin-top:2px;padding-top:0}
+    .message.user .message-time{color:#b9c6e0}
 
-    .chat-messages::-webkit-scrollbar { width: 6px; }
-    .chat-messages::-webkit-scrollbar-track { background: transparent; }
-    .chat-messages::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 10px; }
-    .chat-messages::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.3); }
+    .message-content p{margin-bottom:10px}
+    .message-content p:last-child{margin-bottom:0}
+    .message-content strong{font-weight:700;color:var(--navy-2)}
+    .message-content ul,.message-content ol{margin:0 0 10px 22px}
+    .message-content li{margin-bottom:4px}
+    .message-content h1,.message-content h2,.message-content h3{font-size:1.06em;color:var(--navy);margin:14px 0 6px}
+    .message-content blockquote{border-left:3px solid var(--gold);background:var(--gold-soft);padding:9px 14px;margin:10px 0;border-radius:0 10px 10px 0}
+    .message-content .bible-ref{color:var(--navy-2);background:var(--gold-soft);border-radius:6px;padding:0 6px;font-weight:600;white-space:nowrap}
 
-    .chat-messages {
-      flex: 1 1 auto; min-height: 0; padding: 25px 20px; overflow-y: auto; overscroll-behavior: contain;
-      -webkit-overflow-scrolling: touch; touch-action: pan-y; display: flex; flex-direction: column; gap: 18px;
-    }
+    .message-footer{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:7px;border-top:1px solid var(--line)}
+    .message-time{font-size:11px;color:var(--muted);margin-left:auto}
+    .message-actions{display:flex;gap:6px;align-items:center}
+    .btn-action{background:none;border:0;cursor:pointer;color:var(--navy-2);padding:6px;border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:.65;transition:all .2s}
+    .btn-action:hover{background:rgba(30,60,114,.1);opacity:1;transform:scale(1.08)}
+    .btn-action.playing{color:var(--gold);opacity:1;animation:pulse 1s infinite}
+    .btn-action svg{width:18px;height:18px;fill:currentColor}
+    .btn-report{background:none;border:0;cursor:pointer;color:#b4483b;font-size:12px;font-weight:600;padding:4px 8px;border-radius:12px;opacity:.85;font-family:inherit}
+    .btn-report:hover{background:rgba(180,72,59,.1);opacity:1}
 
-    .message {
-      max-width: 85%; padding: 14px 18px; border-radius: 16px; font-size: var(--message-font-size, 16px);
-      line-height: 1.5; overflow-wrap: anywhere; box-shadow: 0 3px 10px rgba(0,0,0,0.04);
-      position: relative; animation: messageSlideIn 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-      display: flex; flex-direction: column;
-    }
-    .message.user { align-self: flex-end; background: var(--message-user-bg); border-bottom-right-radius: 4px; color: #0d47a1; border: 1px solid rgba(13, 71, 161, 0.1); white-space: pre-wrap; }
-    .message.ia { align-self: flex-start; background: var(--message-ia-bg); border-bottom-left-radius: 4px; color: #2e7d32; border: 1px solid rgba(46, 125, 50, 0.1); }
+    .typing-indicator{display:none;align-items:center;gap:10px;padding:0 var(--pad) 10px calc(var(--pad) + 48px);color:#c9d3e6;font-size:13.5px}
+    .dots i{display:inline-block;width:7px;height:7px;margin-right:4px;border-radius:50%;background:var(--gold);animation:bounce 1.2s infinite}
+    .dots i:nth-child(2){animation-delay:.15s}.dots i:nth-child(3){animation-delay:.3s}
 
-    /* Estilos do Markdown e Referências Bíblicas */
-    .message-content p { margin-bottom: 8px; }
-    .message-content p:last-child { margin-bottom: 0; }
-    .message-content strong { font-weight: 700; color: #1e3c72; }
-    .message-content ul, .message-content ol { margin-left: 20px; margin-bottom: 8px; }
-    .message-content li { margin-bottom: 4px; }
-    .message-content .bible-ref { color: #d32f2f; font-weight: bold; }
-    
-    .message-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 8px; }
-    .message-time { font-size: 11px; color: #888; margin-left: auto; }
-    .message-actions { display: flex; gap: 8px; align-items: center; }
-    
-    .btn-action {
-      background: none; border: none; cursor: pointer; color: #1e3c72; 
-      padding: 6px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-      transition: all 0.2s ease; opacity: 0.6;
-    }
-    .btn-action:hover { background: rgba(30, 60, 114, 0.1); opacity: 1; transform: scale(1.1); }
-    .btn-action.playing { color: #d4af37; opacity: 1; animation: pulseText 1s infinite; }
-    .btn-action svg { width: 18px; height: 18px; fill: currentColor; }
+    .suggestions{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:14px;padding:0 var(--pad) 16px}
+    .chat-container:has(.suggestions:not([hidden])) .chat-messages{flex:0 0 auto}
+    .suggestions:not([hidden]){flex:1 1 auto;min-height:0;overflow-y:auto;align-content:center}
+    .chip{display:flex;flex-direction:column;gap:5px;text-align:left;padding:18px 20px;border-radius:18px;background:#fbfcfe;border:1px solid rgba(20,35,63,.08);border-top:3px solid var(--gold);box-shadow:0 6px 20px rgba(20,35,63,.08);cursor:pointer;font-family:inherit;transition:transform .25s,box-shadow .25s,background .25s}
+    .chip b{color:var(--navy);font-size:15.5px}
+    .chip small{color:var(--muted);font-size:13px;line-height:1.45}
+    .chip:hover{transform:translateY(-4px);background:#fff;box-shadow:0 14px 34px rgba(201,162,39,.25)}
 
-    /* Estilo específico para o link de reportar erro no rodapé da mensagem */
-    .btn-report {
-      background: none; border: none; cursor: pointer; color: #e74c3c;
-      font-size: 12px; font-weight: 600; padding: 4px 8px; border-radius: 12px;
-      transition: all 0.2s ease; display: flex; align-items: center; opacity: 0.7;
-    }
-    .btn-report:hover { background: rgba(231, 76, 60, 0.1); opacity: 1; }
+    .chat-input-area{display:flex;align-items:flex-end;gap:10px;padding:12px var(--pad) 6px;flex:0 0 auto;background:linear-gradient(to top,rgba(8,18,40,.55),rgba(8,18,40,0))}
+    .btn-mic{background:#fff;border:1px solid var(--line);width:50px;height:50px;flex:0 0 50px;border-radius:50%;cursor:pointer;color:var(--navy-2);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(20,35,63,.1);transition:all .2s}
+    .btn-mic:hover{border-color:var(--gold);transform:translateY(-1px)}
+    .btn-mic.listening{color:#fff;background:#b4483b;border-color:#b4483b;animation:pulse 1s infinite}
+    .btn-mic svg{width:22px;height:22px;fill:currentColor}
+    .chat-input-area textarea{min-width:0;flex:1;padding:14px 20px;border:1px solid var(--line);border-radius:26px;font-size:16px;outline:0;background:#fff;resize:none;overflow-y:hidden;min-height:50px;max-height:160px;font-family:inherit;line-height:1.4;color:var(--ink);box-shadow:0 4px 18px rgba(20,35,63,.1);transition:border-color .2s,box-shadow .2s}
+    .chat-input-area textarea:focus{border-color:var(--gold);box-shadow:0 0 0 4px rgba(201,162,39,.2),0 4px 18px rgba(20,35,63,.1)}
+    .chat-input-area button.send-btn{display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--gold-2),#b8941f);color:var(--navy);border:0;border-radius:26px;height:50px;padding:0 24px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;flex:0 0 auto;box-shadow:0 8px 22px rgba(201,162,39,.4);transition:transform .2s,box-shadow .2s,filter .2s}
+    .send-btn svg{width:18px;height:18px;fill:currentColor}
+    .chat-input-area button.send-btn:hover:not(:disabled){transform:translateY(-2px);filter:brightness(1.07);box-shadow:0 12px 28px rgba(201,162,39,.5)}
+    .chat-input-area button:disabled,.chat-input-area textarea:disabled{opacity:.55;cursor:not-allowed}
+    .footnote{font-size:11.5px;color:rgba(255,255,255,.62);text-align:center;padding:0 var(--pad) calc(10px + env(safe-area-inset-bottom));line-height:1.4}
 
-    .typing-indicator { display: none; padding: 0 25px 15px; color: #2e7d32; font-size: 14px; font-style: italic; animation: pulseText 1.5s infinite ease-in-out; }
-
-    .chat-input-area {
-      padding: 15px 20px; background: rgba(255, 255, 255, 0.6); 
-      border-top: 1px solid rgba(0,0,0,0.05); display: flex; align-items: flex-end; gap: 10px; flex: 0 0 auto;
+    @media (max-width:700px){
+      .chat-container{width:100%;margin:0;border-radius:0;border-width:1px 0 0}
+      .ia-info p,.chat-tools .font-label,.send-btn .lbl{display:none}
+      .chat-input-area button.send-btn{padding:0 17px}
+      .message{max-width:100%}
+      .message.user{max-width:88%}
+      .message.ia{margin-left:40px;max-width:calc(100% - 40px)}
+      .message.ia::before{left:-40px;width:30px;height:30px;border-radius:9px}
+      .typing-indicator{padding-left:calc(var(--pad) + 40px)}
+      .suggestions{grid-template-columns:1fr 1fr;gap:10px}
+      .chip{padding:14px}
     }
-    
-    .btn-mic {
-      background: none; border: none; padding: 12px; cursor: pointer; color: #1e3c72;
-      border-radius: 50%; transition: all 0.3s ease; opacity: 0.7; flex: 0 0 auto; margin-bottom: 2px;
+    @media (max-width:400px){.suggestions{grid-template-columns:1fr}}
+    @media (min-width:1500px){.message{font-size:calc(var(--message-font-size,16px) + 1px)}}
+    @media (max-height:520px) and (orientation:landscape){
+      .topbar{padding-top:calc(6px + env(safe-area-inset-top));padding-bottom:6px}
+      .ia-avatar{width:34px;height:34px;flex-basis:34px}
+      .ia-info p,.footnote{display:none}
+      .chat-container{margin:0 auto;border-radius:0}
     }
-    .btn-mic:hover { background: rgba(255,255,255,0.8); opacity: 1; }
-    .btn-mic.listening { color: #e74c3c; background: rgba(231, 76, 60, 0.1); animation: pulseText 1s infinite; opacity: 1; }
-    .btn-mic svg { width: 22px; height: 22px; fill: currentColor; }
-
-    .chat-input-area textarea {
-      min-width: 0; flex: 1; padding: 14px 20px; border: 1px solid rgba(0,0,0,0.1); border-radius: 24px;
-      font-size: 15px; outline: none; background: rgba(255, 255, 255, 0.9);
-      box-shadow: 0 2px 10px rgba(0,0,0,0.02) inset; transition: border 0.3s ease;
-      resize: none; overflow-y: hidden; min-height: 48px; max-height: 150px; font-family: inherit; line-height: 1.4;
-    }
-    .chat-input-area textarea:focus { border-color: #d4af37; box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2); }
-    
-    .chat-input-area button.send-btn {
-      background: var(--primary-gradient); color: white; border: 0; border-radius: 30px;
-      height: 48px; padding: 0 24px; font-size: 15px; font-weight: 600; cursor: pointer; letter-spacing: 0.5px;
-      transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(30, 60, 114, 0.3); flex: 0 0 auto;
-    }
-    .chat-input-area button.send-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(30, 60, 114, 0.5); }
-    .chat-input-area button.send-btn:disabled, .chat-input-area textarea:disabled { opacity: .6; cursor: not-allowed; transform: none; }
-
-    /* MODO RETRATO: Celulares em pé */
-    @media (max-width: 600px) {
-      header { padding: 15px 10px 10px; } header h1 { font-size: 22px; }
-      .chat-container { margin: 0; width: 100%; height: calc(100dvh - 75px); border-radius: 20px 20px 0 0; border-bottom: none; }
-      .message { max-width: 92%; padding: 12px 15px; }
-      .chat-messages { padding: 15px; gap: 12px; }
-      .chat-header { padding: 12px 15px; }
-      .chat-input-area { padding: 10px; padding-bottom: max(10px, env(safe-area-inset-bottom)); gap: 6px; }
-      .chat-input-area textarea { font-size: 16px; padding: 12px 16px; min-height: 45px; max-height: 120px; }
-      .chat-input-area button.send-btn { height: 45px; padding: 0 16px; }
-      .btn-mic { padding: 10px; }
-      .chat-tools { gap: 4px; }
-      .chat-tools button { min-width: 30px; min-height: 30px; }
-      .chat-tools .font-label { display: none; }
-      .btn-report { font-size: 11px; padding: 4px 6px; }
-    }
-
-    /* MODO PAISAGEM: Celulares deitados */
-    @media (max-height: 500px) and (orientation: landscape) {
-      header { padding: 5px 10px; } 
-      header h1 { font-size: 18px; margin-bottom: 0; }
-      header p { display: none; }
-      .chat-container { margin: 5px; width: calc(100% - 10px); height: calc(100dvh - 45px); border-radius: 12px; }
-      .chat-header { padding: 8px 15px; }
-      .ia-avatar { width: 40px; height: 40px; flex: 0 0 40px; }
-      .ia-info h2 { font-size: 15px; }
-      .ia-info p { font-size: 11px; }
-      .chat-messages { padding: 10px 15px; gap: 10px; }
-      .message { padding: 10px 14px; }
-      .chat-input-area { padding: 8px 10px; padding-bottom: max(8px, env(safe-area-inset-bottom)); gap: 6px; }
-      .chat-input-area textarea { min-height: 38px; max-height: 80px; padding: 8px 14px; font-size: 14px; }
-      .chat-input-area button.send-btn { height: 38px; padding: 0 16px; font-size: 14px; }
-      .btn-mic { padding: 8px; }
-      .btn-mic svg { width: 18px; height: 18px; }
-    }
+    @media (prefers-reduced-motion:reduce){*,body::before{animation:none!important;transition:none!important}}
   </style>
 </head>
 <body>
-  <header>
-    <h1>Escola de Pregadores</h1>
-    <p>Formando com Excelência e Fé</p>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <img class="ia-avatar" src="/icons/avatar.svg" alt="Tutor Teo" width="44" height="44" />
+      <div class="ia-info">
+        <h1>Tutor Teo</h1>
+        <p>Escola de Pregadores · Assistente teológico</p>
+      </div>
+      <div class="chat-tools">
+        <button type="button" id="clear-chat" title="Limpar conversa" aria-label="Limpar conversa">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+        </button>
+        <button type="button" id="font-down" title="Diminuir letras" aria-label="Diminuir letras">A−</button>
+        <span class="font-label" id="font-size-label">16px</span>
+        <button type="button" id="font-up" title="Aumentar letras" aria-label="Aumentar letras">A+</button>
+      </div>
+    </div>
   </header>
 
   <main class="chat-container" aria-label="Conversa com o Tutor Teo">
-    <div class="chat-header">
-      
-      <!-- Avatar 3D Cartoon Estilo Disney/Pixar -->
-      <svg class="ia-avatar" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#FFD700" />
-            <stop offset="100%" stop-color="#FF8C00" />
-          </linearGradient>
-          <radialGradient id="skin-grad" cx="45%" cy="45%" r="60%">
-            <stop offset="0%" stop-color="#ffefdf" />
-            <stop offset="60%" stop-color="#f5ceb3" />
-            <stop offset="100%" stop-color="#e0a382" />
-          </radialGradient>
-          <linearGradient id="hair-grad" x1="20%" y1="0%" x2="80%" y2="100%">
-            <stop offset="0%" stop-color="#7a4b2c" />
-            <stop offset="40%" stop-color="#5c3a21" />
-            <stop offset="100%" stop-color="#301c0e" />
-          </linearGradient>
-          <linearGradient id="neck-shadow" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stop-color="rgba(0,0,0,0.2)" />
-            <stop offset="100%" stop-color="rgba(0,0,0,0)" />
-          </linearGradient>
-        </defs>
-        <circle cx="50" cy="50" r="50" fill="url(#bg-grad)" />
-        <path d="M 20 100 C 20 70, 30 65, 50 65 C 70 65, 80 70, 80 100" fill="#2c3e50" />
-        <path d="M 35 65 Q 50 78 65 65 L 50 82 Z" fill="#ecf0f1" />
-        <rect x="42" y="55" width="16" height="15" fill="url(#skin-grad)" />
-        <rect x="42" y="55" width="16" height="8" fill="url(#neck-shadow)" />
-        <circle cx="25" cy="50" r="6" fill="url(#skin-grad)" />
-        <circle cx="75" cy="50" r="6" fill="url(#skin-grad)" />
-        <circle cx="24" cy="50" r="3" fill="rgba(0,0,0,0.1)" />
-        <circle cx="76" cy="50" r="3" fill="rgba(0,0,0,0.1)" />
-        <path d="M 26 42 C 26 15, 74 15, 74 42 C 74 65, 63 73, 50 73 C 37 73, 26 65, 26 42 Z" fill="url(#skin-grad)" />
-        <path d="M 22 45 C 18 20, 45 5, 50 5 C 55 5, 82 20, 78 45 C 80 25, 60 8, 45 12 C 35 15, 25 25, 22 45 Z" fill="url(#hair-grad)" />
-        <path d="M 25 36 Q 40 22 62 30 Q 68 25 75 35 Q 60 15 45 22 Q 35 24 25 36 Z" fill="#6d4224" />
-        <path d="M 40 20 Q 55 12 65 24 Q 55 18 40 20 Z" fill="#8c5834" opacity="0.6" />
-        <path d="M 32 36 Q 38 33 44 36" fill="none" stroke="#4a2e1b" stroke-width="3" stroke-linecap="round"/>
-        <path d="M 56 36 Q 62 33 68 36" fill="none" stroke="#4a2e1b" stroke-width="3" stroke-linecap="round"/>
-        <ellipse cx="38" cy="46" rx="6.5" ry="8.5" fill="#ffffff" />
-        <ellipse cx="62" cy="46" rx="6.5" ry="8.5" fill="#ffffff" />
-        <ellipse cx="39" cy="46" rx="4.5" ry="6" fill="#8e5b38" />
-        <ellipse cx="61" cy="46" rx="4.5" ry="6" fill="#8e5b38" />
-        <ellipse cx="39" cy="46" rx="2.5" ry="3.5" fill="#1a1a1a" />
-        <ellipse cx="61" cy="46" rx="2.5" ry="3.5" fill="#1a1a1a" />
-        <circle cx="38" cy="44" r="1.5" fill="#ffffff" />
-        <circle cx="40.5" cy="47" r="0.7" fill="#ffffff" />
-        <circle cx="60" cy="44" r="1.5" fill="#ffffff" />
-        <circle cx="62.5" cy="47" r="0.7" fill="#ffffff" />
-        <path d="M 48 52 Q 50 55 52 52" fill="none" stroke="#d68f70" stroke-width="2.5" stroke-linecap="round" />
-        <ellipse cx="32" cy="54" rx="4" ry="3" fill="#ff7b7b" opacity="0.3" />
-        <ellipse cx="68" cy="54" rx="4" ry="3" fill="#ff7b7b" opacity="0.3" />
-        <path d="M 39 59 Q 50 69 61 59 Q 50 63 39 59 Z" fill="#7a2a2a" />
-        <path d="M 42 60 Q 50 64 58 60 Q 50 62 42 60 Z" fill="#ffffff" />
-        <rect x="29" y="38" width="18" height="15" rx="5" fill="rgba(255,255,255,0.2)" stroke="#222" stroke-width="2.5" />
-        <rect x="53" y="38" width="18" height="15" rx="5" fill="rgba(255,255,255,0.2)" stroke="#222" stroke-width="2.5" />
-        <path d="M 47 44 L 53 44" stroke="#222" stroke-width="2.5" />
-        <path d="M 29 44 Q 26 44 24 42" fill="none" stroke="#222" stroke-width="2.5" stroke-linecap="round" />
-        <path d="M 71 44 Q 74 44 76 42" fill="none" stroke="#222" stroke-width="2.5" stroke-linecap="round" />
-        <path d="M 31 40 L 35 44" stroke="#ffffff" stroke-width="1.5" opacity="0.6" stroke-linecap="round"/>
-        <path d="M 55 40 L 59 44" stroke="#ffffff" stroke-width="1.5" opacity="0.6" stroke-linecap="round"/>
-      </svg>
-      
-      <div class="ia-info">
-        <h2>Tutor Teo</h2>
-        <p>Seu Assistente Teológico</p>
-      </div>
-      
-      <div class="chat-tools">
-        <button type="button" id="clear-chat" title="Limpar conversa">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
-        </button>
-        <button type="button" id="font-down" title="Diminuir letras">A−</button>
-        <span class="font-label" id="font-size-label">16px</span>
-        <button type="button" id="font-up" title="Aumentar letras">A+</button>
-      </div>
-    </div>
+    <form class="name-bar" id="name-form" hidden>
+      <label for="name-input">Como posso te chamar?</label>
+      <input id="name-input" maxlength="30" autocomplete="given-name" placeholder="Seu nome" />
+      <button type="submit" class="ok">Salvar</button>
+      <button type="button" class="skip" id="name-skip">Agora não</button>
+    </form>
 
     <div class="chat-messages" id="chat-messages" aria-live="polite"></div>
-    <div class="typing-indicator" id="typing-indicator">Tutor Teo está preparando a resposta...</div>
-    
+    <div class="typing-indicator" id="typing-indicator"><span class="dots"><i></i><i></i><i></i></span>Tutor Teo está preparando a resposta…</div>
+
+    <div class="suggestions" id="suggestions" hidden>
+      <button type="button" class="chip" data-q="Como preparar um esboço de sermão?"><b>Esboço de sermão</b><small>Como preparar um esboço de sermão?</small></button>
+      <button type="button" class="chip" data-q="Qual a diferença entre exegese e eisegese?"><b>Exegese x eisegese</b><small>Entenda a diferença e por que importa</small></button>
+      <button type="button" class="chip" data-q="Explique Romanos 8:1 com o contexto histórico."><b>Romanos 8:1</b><small>Explicação com o contexto histórico</small></button>
+      <button type="button" class="chip" data-q="Como aplicar um texto bíblico à vida da igreja?"><b>Aplicação do texto</b><small>Como levar a Palavra à vida da igreja</small></button>
+    </div>
+
     <form class="chat-input-area" id="chat-form">
-      <button type="button" id="mic-button" class="btn-mic" title="Falar">
+      <button type="button" id="mic-button" class="btn-mic" title="Falar" aria-label="Falar sua pergunta">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg>
       </button>
-      <textarea id="user-input" rows="1" maxlength="5000" placeholder="Digite sua pergunta..." required></textarea>
-      <button type="submit" id="send-button" class="send-btn">Enviar</button>
+      <textarea id="user-input" rows="1" maxlength="5000" placeholder="Digite sua pergunta..." aria-label="Sua pergunta" required></textarea>
+      <button type="submit" id="send-button" class="send-btn"><span class="lbl">Enviar</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg></button>
     </form>
+    <p class="footnote">Respostas geradas por inteligência artificial; confira pontos importantes com seu professor. Suas conversas ficam salvas só neste aparelho.</p>
   </main>
 
   <script>
@@ -309,13 +197,51 @@
     let fontSize = 16;
     let conversation = [];
 
+    const NAME_KEY = "tutorTeoStudentName_v1";
+    const nameForm = document.getElementById("name-form");
+    const nameInput = document.getElementById("name-input");
+    const suggestionsBox = document.getElementById("suggestions");
+    const isTouch = window.matchMedia("(pointer: coarse)").matches;
+    let nameSkipped = false;
+    function cleanName(v) { return String(v || "").replace(/[^\p{L}\p{M}' -]/gu, "").trim().slice(0, 30); }
+    let studentName = "";
+    try { studentName = cleanName(localStorage.getItem(NAME_KEY)); } catch (_) {}
+    function welcomeText() {
+      return studentName ? `Paz, ${studentName}! Sou o Tutor Teo, assistente virtual da Escola de Pregadores. Sobre o que vamos estudar hoje?` : WELCOME;
+    }
+    function refreshStartUI() {
+      const empty = conversation.length === 0;
+      suggestionsBox.hidden = !empty;
+      nameForm.hidden = !(empty && !studentName && !nameSkipped);
+    }
+    nameForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const n = cleanName(nameInput.value);
+      if (!n) return;
+      studentName = n;
+      try { localStorage.setItem(NAME_KEY, n); } catch (_) {}
+      if (!conversation.length) { messagesContainer.innerHTML = ""; appendMessage(welcomeText(), "ia", "Agora", false); }
+      refreshStartUI();
+    });
+    document.getElementById("name-skip").addEventListener("click", () => { nameSkipped = true; refreshStartUI(); });
+    suggestionsBox.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-q]");
+      if (!btn) return;
+      input.value = btn.dataset.q;
+      form.dispatchEvent(new Event("submit", { cancelable: true, bubbles: true }));
+    });
+
     input.addEventListener("input", function() {
       this.style.height = 'auto';
-      this.style.height = (this.scrollHeight) + 'px';
+      const cs = getComputedStyle(this);
+      const max = parseFloat(cs.maxHeight) || 160;
+      const h = this.scrollHeight + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth);
+      this.style.height = Math.min(h, max) + 'px';
+      this.style.overflowY = h > max ? 'auto' : 'hidden';
     });
     
     input.addEventListener("keydown", function(e) {
-      if (e.key === 'Enter' && !e.shiftKey) {
+      if (e.key === 'Enter' && !e.shiftKey && !isTouch) {
         e.preventDefault();
         if(input.value.trim() !== '') form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
       }
@@ -349,7 +275,9 @@
         conversation = [];
         saveHistory();
         messagesContainer.innerHTML = '';
-        appendMessage(WELCOME, "ia", "Agora", false);
+        appendMessage(welcomeText(), "ia", "Agora", false);
+        nameSkipped = false;
+        refreshStartUI();
       }
     });
 
@@ -364,7 +292,7 @@
       document.querySelectorAll('.btn-audio').forEach(b => b.classList.remove('playing'));
 
       const tempDiv = document.createElement("div");
-      tempDiv.innerHTML = marked.parse(text);
+      tempDiv.innerHTML = renderMarkdown(text);
       const cleanText = tempDiv.textContent || tempDiv.innerText || "";
 
       const utterance = new SpeechSynthesisUtterance(cleanText);
@@ -377,6 +305,7 @@
       window.speechSynthesis.speak(utterance);
     }
 
+    function renderMarkdown(text) { return DOMPurify.sanitize(marked.parse(text)); }
     function getCurrentTime() { return new Intl.DateTimeFormat("pt-BR", { hour: "2-digit", minute: "2-digit" }).format(new Date()); }
     function saveHistory() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(conversation)); } catch (e) {} }
 
@@ -427,7 +356,7 @@
       const contentDiv = document.createElement("div");
       contentDiv.className = "message-content";
       
-      if (sender === "ia") contentDiv.innerHTML = marked.parse(text);
+      if (sender === "ia") contentDiv.innerHTML = renderMarkdown(text);
       else contentDiv.textContent = text;
       
       messageDiv.appendChild(contentDiv);
@@ -441,17 +370,17 @@
 
         const audioBtn = document.createElement("button");
         audioBtn.className = "btn-action btn-audio";
-        audioBtn.title = "Ouvir resposta";
+        audioBtn.title = "Ouvir resposta"; audioBtn.setAttribute("aria-label", "Ouvir resposta");
         audioBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>`;
         audioBtn.onclick = () => speakText(text, audioBtn);
         
         const copyBtn = document.createElement("button");
         copyBtn.className = "btn-action";
-        copyBtn.title = "Copiar texto";
+        copyBtn.title = "Copiar texto"; copyBtn.setAttribute("aria-label", "Copiar texto");
         copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>`;
         copyBtn.onclick = () => {
           const tempDiv = document.createElement("div");
-          tempDiv.innerHTML = marked.parse(text);
+          tempDiv.innerHTML = renderMarkdown(text);
           navigator.clipboard.writeText(tempDiv.textContent || tempDiv.innerText || "");
           
           copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>`;
@@ -490,8 +419,8 @@
       } catch (error) { conversation = []; }
 
       if (conversation.length) conversation.forEach(item => appendMessage(item.content, item.role === "user" ? "user" : "ia", item.time || "Salvo", false));
-      else appendMessage(WELCOME, "ia", "Agora", false);
-      setTimeout(scrollToLatest, 100);
+      else appendMessage(welcomeText(), "ia", "Agora", false);
+      refreshStartUI(); setTimeout(scrollToLatest, 100);
     }
 
     function applyFontSize() {
@@ -509,7 +438,7 @@
 
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
-      window.speechSynthesis.cancel();
+      if ("speechSynthesis" in window) window.speechSynthesis.cancel();
       document.querySelectorAll('.btn-audio').forEach(b => b.classList.remove('playing'));
 
       const messageText = input.value.trim();
@@ -517,10 +446,12 @@
 
       appendMessage(messageText, "user");
       conversation.push({ role: "user", content: messageText, time: getCurrentTime() });
+      refreshStartUI();
       saveHistory();
       
       input.value = "";
       input.style.height = 'auto';
+      input.style.overflowY = 'hidden';
       sendButton.disabled = true;
       input.disabled = true;
       micBtn.disabled = true;
@@ -531,7 +462,7 @@
         const response = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ messages: conversation.slice(-12).map(({ role, content }) => ({ role, content })) })
+          body: JSON.stringify({ studentName, messages: conversation.slice(-12).map(({ role, content }) => ({ role, content })) })
         });
 
         let data;
