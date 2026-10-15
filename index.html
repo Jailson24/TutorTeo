@@ -155,12 +155,41 @@
       .daily-bar small{display:none}
     }
     @media (min-width:1500px){.message{font-size:calc(var(--message-font-size,16px) + 1px)}}
-    @media (max-height:520px) and (orientation:landscape){
-      .topbar{padding-top:calc(6px + env(safe-area-inset-top));padding-bottom:6px}
-      .ia-avatar{width:34px;height:34px;flex-basis:34px}
+    /* Paisagem no celular: o chat ocupa a tela inteira */
+    @media (orientation:landscape) and (max-height:600px){
+      :root{--pad:clamp(10px,2vw,20px)}
+      .topbar{padding:calc(6px + env(safe-area-inset-top)) max(var(--pad),env(safe-area-inset-right)) 6px max(var(--pad),env(safe-area-inset-left))}
+      .ia-avatar{width:34px;height:34px;flex-basis:34px;border-radius:10px}
+      .ia-info h1{font-size:16px}
       .ia-info p,.footnote{display:none}
-      .chat-container{margin:0 auto;border-radius:0}
+      .chat-container{width:100%;max-width:none;margin:0;border-radius:0;border-width:1px 0 0;padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
+      .chat-messages{gap:12px}
+      .message{max-width:94%;padding:10px 14px}
+      .message.user{max-width:82%}
+      .message.ia{max-width:calc(100% - 44px);margin-left:44px}
+      .typing-indicator{padding-bottom:6px}
+      .daily-bar{margin-top:8px;padding:7px 12px}
+      .daily-bar small{display:none}
+      .suggestions{grid-template-columns:repeat(4,1fr);gap:8px;padding-bottom:8px}
+      .chip{padding:10px 12px;gap:0}
+      .chip small{display:none}
+      .chat-input-area{padding-top:8px;padding-bottom:calc(8px + env(safe-area-inset-bottom))}
+      .btn-mic,.chat-input-area button.send-btn{height:44px}
+      .btn-mic{width:44px;flex-basis:44px}
+      .chat-input-area textarea{min-height:44px;padding:11px 18px}
+      .daily-overlay,.reader-overlay{padding:0}
+      .daily-modal{width:100%;height:100%;border-radius:0}
     }
+
+    /* Resposta em tela cheia */
+    .reader-overlay{position:fixed;inset:0;z-index:60;display:flex;background:#fff}
+    .reader{width:100%;height:100%;display:flex;flex-direction:column;background:#fff;border-top:4px solid var(--gold)}
+    .reader-head{flex:0 0 auto;display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) 10px max(16px,env(safe-area-inset-left));border-bottom:1px solid var(--line)}
+    .reader-head h2{font-size:16px;color:var(--navy)}
+    .reader-head .reader-tools{margin-left:auto;display:flex;gap:4px;align-items:center}
+    .reader-head .font-btn{border:1px solid var(--line);background:#fff;color:var(--navy);border-radius:9px;min-width:36px;min-height:36px;font-weight:700;cursor:pointer;font-family:inherit}
+    .reader-body{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:18px max(clamp(16px,5vw,80px),env(safe-area-inset-right)) calc(28px + env(safe-area-inset-bottom)) max(clamp(16px,5vw,80px),env(safe-area-inset-left));font-size:var(--message-font-size,16px);line-height:1.7;color:var(--ink)}
+    .reader-body .message-content{max-width:900px;margin:0 auto}
     @media (prefers-reduced-motion:reduce){*,body::before{animation:none!important;transition:none!important}}
   </style>
 </head>
@@ -216,6 +245,21 @@
     </form>
     <p class="footnote">Respostas geradas por inteligência artificial; confira pontos importantes com seu professor. Suas conversas ficam salvas só neste aparelho.</p>
   </main>
+
+  <div class="reader-overlay" id="reader-overlay" hidden>
+    <div class="reader" role="dialog" aria-modal="true" aria-label="Resposta em tela cheia">
+      <div class="reader-head">
+        <h2>Tutor Teo</h2>
+        <div class="reader-tools">
+          <button type="button" class="font-btn" id="reader-font-down" aria-label="Diminuir letras">A−</button>
+          <button type="button" class="font-btn" id="reader-font-up" aria-label="Aumentar letras">A+</button>
+          <button type="button" class="btn-action btn-audio" id="reader-audio" title="Ouvir resposta" aria-label="Ouvir resposta"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg></button>
+          <button type="button" class="daily-close" id="reader-close" aria-label="Fechar">×</button>
+        </div>
+      </div>
+      <div class="reader-body"><div class="message-content" id="reader-content"></div></div>
+    </div>
+  </div>
 
   <div class="daily-overlay" id="daily-overlay" hidden>
     <div class="daily-modal message-content" role="dialog" aria-modal="true" aria-labelledby="daily-title">
@@ -446,7 +490,14 @@
         reportBtn.textContent = "Reportar erro";
         reportBtn.onclick = () => reportarErroWhatsApp(text);
 
+        const expandBtn = document.createElement("button");
+        expandBtn.className = "btn-action";
+        expandBtn.title = "Abrir em tela cheia"; expandBtn.setAttribute("aria-label", "Abrir em tela cheia");
+        expandBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>`;
+        expandBtn.onclick = () => openReader(text);
+
         actionsDiv.appendChild(audioBtn);
+        actionsDiv.appendChild(expandBtn);
         actionsDiv.appendChild(copyBtn);
         actionsDiv.appendChild(reportBtn);
         
@@ -488,6 +539,29 @@
     try { fontSize = Math.min(40, Math.max(14, Number(localStorage.getItem(FONT_KEY)) || 16)); } catch (_) {}
     applyFontSize();
     loadHistory();
+
+    /* ---------------- Resposta em tela cheia ---------------- */
+    const readerOverlay = document.getElementById("reader-overlay");
+    const readerContent = document.getElementById("reader-content");
+    const readerAudio = document.getElementById("reader-audio");
+    let readerText = "";
+    function openReader(text) {
+      readerText = text;
+      readerContent.innerHTML = renderMarkdown(text);
+      readerOverlay.hidden = false;
+      readerOverlay.querySelector(".reader-body").scrollTop = 0;
+      document.getElementById("reader-close").focus();
+    }
+    function closeReader() {
+      readerOverlay.hidden = true;
+      if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+      document.querySelectorAll('.btn-audio').forEach(b => b.classList.remove('playing'));
+    }
+    document.getElementById("reader-close").addEventListener("click", closeReader);
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !readerOverlay.hidden) closeReader(); });
+    readerAudio.addEventListener("click", () => { if (readerText) speakText(readerText, readerAudio); });
+    document.getElementById("reader-font-down").addEventListener("click", () => { fontSize = Math.max(14, fontSize - 1); applyFontSize(); });
+    document.getElementById("reader-font-up").addEventListener("click", () => { fontSize = Math.min(40, fontSize + 1); applyFontSize(); });
 
     /* ---------------- Mensagem do dia ---------------- */
     const DAILY_KEY = "tutorTeoDailyMsg_v1";
