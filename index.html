@@ -144,10 +144,16 @@
       .message.ia{margin-left:40px;max-width:calc(100% - 40px)}
       .message.ia::before{left:-40px;width:30px;height:30px;border-radius:9px}
       .typing-indicator{padding-left:calc(var(--pad) + 40px)}
-      .suggestions{grid-template-columns:1fr 1fr;gap:10px}
-      .chip{padding:14px}
+      .suggestions{grid-template-columns:1fr 1fr;gap:8px;padding-bottom:10px}
+      .chip{padding:10px 12px;gap:0;border-radius:14px;border-top-width:2px;box-shadow:0 4px 12px rgba(20,35,63,.08)}
+      .chip b{font-size:14px;line-height:1.25}
+      .chip small{display:none}
+      .chip:hover{transform:none}
+      .daily-bar{margin-top:10px;padding:9px 12px;gap:10px}
+      .daily-bar .daily-ico{font-size:19px}
+      .daily-bar b{font-size:14px}
+      .daily-bar small{display:none}
     }
-    @media (max-width:400px){.suggestions{grid-template-columns:1fr}}
     @media (min-width:1500px){.message{font-size:calc(var(--message-font-size,16px) + 1px)}}
     @media (max-height:520px) and (orientation:landscape){
       .topbar{padding-top:calc(6px + env(safe-area-inset-top));padding-bottom:6px}
