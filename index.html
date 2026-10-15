@@ -47,6 +47,25 @@
 
     .chat-container{flex:1 1 auto;min-height:0;width:min(1560px,calc(100% - clamp(0px,4vw,56px)));margin:clamp(0px,1.6vw,22px) auto;display:flex;flex-direction:column;background:rgba(8,18,40,.34);-webkit-backdrop-filter:blur(10px) saturate(140%);backdrop-filter:blur(10px) saturate(140%);border:1px solid rgba(255,255,255,.16);border-radius:clamp(0px,1.5vw,24px);box-shadow:0 24px 70px rgba(0,0,0,.4);overflow:hidden}
 
+    .daily-bar{flex:0 0 auto;display:flex;align-items:center;gap:12px;width:calc(100% - 2*var(--pad));margin:14px var(--pad) 0;padding:12px 16px;border:1px solid rgba(227,196,87,.7);border-radius:14px;background:linear-gradient(135deg,rgba(247,240,214,.97),rgba(240,226,160,.95));color:var(--navy);font-family:inherit;text-align:left;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.18);transition:transform .2s,box-shadow .2s}
+    .daily-bar:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(201,162,39,.35)}
+    .daily-bar .daily-ico{font-size:22px;line-height:1}
+    .daily-bar b{display:block;font-size:15px}
+    .daily-bar small{display:block;font-size:12.5px;color:#5b5326;margin-top:1px}
+    .daily-bar .daily-go{margin-left:auto;font-size:20px;font-weight:700}
+
+    .daily-overlay{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:max(14px,env(safe-area-inset-top)) 14px max(14px,env(safe-area-inset-bottom));background:rgba(6,14,32,.7);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+    .daily-modal{width:min(720px,100%);max-height:100%;display:flex;flex-direction:column;background:#fff;border-radius:20px;border-top:4px solid var(--gold);box-shadow:0 30px 80px rgba(0,0,0,.5);overflow:hidden;animation:rise .3s cubic-bezier(.2,.8,.2,1) both}
+    .daily-head{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--line)}
+    .daily-head h2{font-size:17px;color:var(--navy)}
+    .daily-head small{display:block;font-size:12px;color:var(--muted);font-weight:400;text-transform:capitalize}
+    .daily-head .daily-tools{margin-left:auto;display:flex;gap:4px;align-items:center}
+    .daily-close{background:none;border:0;cursor:pointer;font-size:26px;line-height:1;color:var(--muted);padding:2px 8px;border-radius:8px}
+    .daily-close:hover{background:rgba(20,35,63,.08)}
+    .daily-body{padding:16px 20px 20px;overflow-y:auto;font-size:var(--message-font-size,16px);line-height:1.65;color:var(--ink)}
+    .daily-body .loading,.daily-body .err{color:var(--muted);text-align:center;padding:28px 0}
+    .daily-body .err button{margin-top:12px;border:0;border-radius:9px;padding:9px 16px;background:var(--navy);color:#fff;font-family:inherit;font-weight:600;cursor:pointer}
+
     .name-bar label{color:var(--navy);font-weight:600}
     .name-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px var(--pad) 0;padding:11px 14px;background:var(--gold-soft);border:1px solid #e6d88f;border-radius:14px;font-size:14px}
     .name-bar input{flex:1 1 140px;min-width:0;padding:9px 12px;border:1px solid #d9cc8a;border-radius:9px;font-size:16px;font-family:inherit;background:#fff}
@@ -159,6 +178,12 @@
   </header>
 
   <main class="chat-container" aria-label="Conversa com o Tutor Teo">
+    <button type="button" class="daily-bar" id="daily-open" aria-haspopup="dialog">
+      <span class="daily-ico" aria-hidden="true">📖</span>
+      <span><b>Mensagem do dia</b><small>Devocional com aplicação prática para hoje</small></span>
+      <span class="daily-go" aria-hidden="true">›</span>
+    </button>
+
     <form class="name-bar" id="name-form" hidden>
       <label for="name-input">Como posso te chamar?</label>
       <input id="name-input" maxlength="30" autocomplete="given-name" placeholder="Seu nome" />
@@ -185,6 +210,21 @@
     </form>
     <p class="footnote">Respostas geradas por inteligência artificial; confira pontos importantes com seu professor. Suas conversas ficam salvas só neste aparelho.</p>
   </main>
+
+  <div class="daily-overlay" id="daily-overlay" hidden>
+    <div class="daily-modal message-content" role="dialog" aria-modal="true" aria-labelledby="daily-title">
+      <div class="daily-head">
+        <span aria-hidden="true" style="font-size:22px">📖</span>
+        <h2 id="daily-title">Mensagem do dia<small id="daily-date"></small></h2>
+        <div class="daily-tools">
+          <button type="button" class="btn-action btn-audio" id="daily-audio" title="Ouvir mensagem" aria-label="Ouvir mensagem"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg></button>
+          <button type="button" class="btn-action" id="daily-copy" title="Copiar" aria-label="Copiar mensagem"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></button>
+          <button type="button" class="daily-close" id="daily-close" aria-label="Fechar">×</button>
+        </div>
+      </div>
+      <div class="daily-body" id="daily-body"></div>
+    </div>
+  </div>
 
   <script>
     if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js'); }); }
@@ -442,6 +482,86 @@
     try { fontSize = Math.min(40, Math.max(14, Number(localStorage.getItem(FONT_KEY)) || 16)); } catch (_) {}
     applyFontSize();
     loadHistory();
+
+    /* ---------------- Mensagem do dia ---------------- */
+    const DAILY_KEY = "tutorTeoDailyMsg_v1";
+    const dailyOverlay = document.getElementById("daily-overlay");
+    const dailyBody = document.getElementById("daily-body");
+    const dailyAudio = document.getElementById("daily-audio");
+    const dailyCopy = document.getElementById("daily-copy");
+    let dailyText = "";
+    let dailyLoading = false;
+
+    function todayKey() {
+      const d = new Date();
+      const p = (n) => String(n).padStart(2, "0");
+      return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+    }
+    function readDailyCache() {
+      try {
+        const c = JSON.parse(localStorage.getItem(DAILY_KEY) || "null");
+        if (c && c.date === todayKey() && typeof c.text === "string" && c.text.trim()) return c.text;
+      } catch (_) {}
+      return "";
+    }
+    function showDaily(text) {
+      dailyText = text;
+      dailyBody.innerHTML = renderMarkdown(text);
+      dailyBody.scrollTop = 0;
+    }
+    async function loadDaily() {
+      const cached = readDailyCache();
+      if (cached) return showDaily(cached);
+      if (dailyLoading) return;
+      dailyLoading = true;
+      dailyText = "";
+      dailyBody.innerHTML = '<div class="loading"><span class="dots"><i></i><i></i><i></i></span><p style="margin-top:8px">Preparando a mensagem de hoje…</p></div>';
+      try {
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ devotional: true, date: todayKey() })
+        });
+        let data;
+        try { data = await response.json(); } catch { throw new Error("O servidor retornou uma resposta inválida."); }
+        if (!response.ok) throw new Error(data.error || "Não foi possível carregar a mensagem do dia.");
+        if (typeof data.resposta !== "string" || !data.resposta.trim()) throw new Error("A mensagem veio vazia. Tente novamente.");
+        try { localStorage.setItem(DAILY_KEY, JSON.stringify({ date: todayKey(), text: data.resposta })); } catch (_) {}
+        showDaily(data.resposta);
+      } catch (error) {
+        dailyBody.innerHTML = '<div class="err"></div>';
+        const box = dailyBody.firstChild;
+        box.textContent = error.message || "Erro de conexão. Verifique sua internet.";
+        const retry = document.createElement("button");
+        retry.type = "button"; retry.textContent = "Tentar de novo";
+        retry.onclick = loadDaily;
+        box.appendChild(document.createElement("br")); box.appendChild(retry);
+      } finally {
+        dailyLoading = false;
+      }
+    }
+    function openDaily() {
+      document.getElementById("daily-date").textContent = new Intl.DateTimeFormat("pt-BR", { weekday: "long", day: "numeric", month: "long" }).format(new Date());
+      dailyOverlay.hidden = false;
+      loadDaily();
+    }
+    function closeDaily() {
+      dailyOverlay.hidden = true;
+      if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+      dailyAudio.classList.remove("playing");
+      document.getElementById("daily-open").focus();
+    }
+    document.getElementById("daily-open").addEventListener("click", openDaily);
+    document.getElementById("daily-close").addEventListener("click", closeDaily);
+    dailyOverlay.addEventListener("click", (e) => { if (e.target === dailyOverlay) closeDaily(); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !dailyOverlay.hidden) closeDaily(); });
+    dailyAudio.addEventListener("click", () => { if (dailyText) speakText(dailyText, dailyAudio); });
+    dailyCopy.addEventListener("click", () => {
+      if (!dailyText) return;
+      const tmp = document.createElement("div");
+      tmp.innerHTML = renderMarkdown(dailyText);
+      try { navigator.clipboard.writeText(tmp.textContent || ""); } catch (_) {}
+    });
 
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
