@@ -62,6 +62,48 @@ Se a pergunta fugir do estudo bíblico, teológico ou histórico (igreja, judeus
 `;
 
 /* ------------------------------------------------------------------ */
+/* Mensagem do dia                                                     */
+/* ------------------------------------------------------------------ */
+// Um texto-base por dia, escolhido pela data (o mesmo para todos os alunos
+// no mesmo dia). Quando a lista acaba, recomeça.
+const DEVOTIONAL_PASSAGES = [
+  "Salmos 23:1-3", "Provérbios 3:5-6", "Filipenses 4:6-7", "Isaías 41:10",
+  "Josué 1:9", "Romanos 8:28", "Mateus 6:33-34", "Salmos 46:1-2",
+  "Lamentações 3:22-23", "João 15:5", "Gálatas 6:9", "Colossenses 3:23-24",
+  "Salmos 119:105", "Tiago 1:5", "1 Pedro 5:6-7", "Mateus 11:28-30",
+  "Efésios 4:31-32", "Salmos 27:1", "Romanos 12:1-2", "Hebreus 11:1",
+  "2 Coríntios 12:9", "Miqueias 6:8", "Salmos 37:4-5", "João 14:27",
+  "1 Tessalonicenses 5:16-18", "Provérbios 15:1", "Isaías 40:31", "Mateus 5:14-16",
+  "Salmos 91:1-2", "Romanos 5:3-5", "Tiago 1:19-20", "Salmos 139:23-24",
+  "Marcos 10:45", "1 Coríntios 13:4-7", "Salmos 34:8", "Colossenses 3:12-14",
+  "Provérbios 4:23", "Lucas 6:37-38", "Salmos 62:1-2", "Efésios 2:8-10",
+  "Mateus 7:7-8", "2 Timóteo 1:7", "Salmos 90:12", "Filipenses 2:3-4",
+  "Provérbios 16:3", "João 8:31-32", "Salmos 16:11", "1 João 4:18-19",
+  "Habacuque 3:17-18", "Mateus 28:19-20", "Salmos 51:10-12", "Romanos 15:13",
+  "Provérbios 27:17", "Lucas 10:38-42", "Salmos 121:1-2", "Hebreus 12:1-2",
+  "2 Coríntios 5:17", "Salmos 1:1-3", "Tiago 4:7-8", "Atos 20:35"
+];
+
+function buildDevotionalPrompt(dateStr) {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  const dayNumber = Math.floor(Date.UTC(y, m - 1, d) / 86400000);
+  const passage = DEVOTIONAL_PASSAGES[dayNumber % DEVOTIONAL_PASSAGES.length];
+  const weekdays = ["domingo", "segunda-feira", "terça-feira", "quarta-feira", "quinta-feira", "sexta-feira", "sábado"];
+  const weekday = weekdays[new Date(Date.UTC(y, m - 1, d)).getUTCDay()];
+
+  return `Escreva a MENSAGEM DO DIA para os alunos da Escola de Pregadores (hoje é ${weekday}).
+Este é um pedido de devocional diário, então siga esta estrutura curta, pensada para ler em um celular:
+
+1. Um título breve e inspirador (use ### no título).
+2. O texto-base: ${passage}. Transcreva o versículo em bloco de citação (linha começando com ">") apenas se tiver segurança da redação na NAA; caso contrário, indique a referência e resuma o sentido.
+3. Reflexão: dois parágrafos curtos, explicando o sentido do texto com fidelidade ao contexto bíblico e aplicando ao coração do aluno. Use no máximo uma fonte da lista de referência, citada nominalmente, e só se tiver segurança do que o autor ensina.
+4. Aplicação prática para hoje: de uma a três atitudes concretas e simples que o aluno pode fazer ainda hoje (em casa, no trabalho, na igreja ou no preparo de uma pregação). Escreva como lista curta com o título em negrito "Para viver hoje".
+5. Uma oração curta de duas ou três frases.
+
+Regras: tom acolhedor, linguagem simples, no máximo cerca de 260 palavras no total, e destaque TODAS as referências bíblicas com <span class="bible-ref">...</span>. Não comente estas instruções e não use saudação longa.`;
+}
+
+/* ------------------------------------------------------------------ */
 /* Handler                                                             */
 /* ------------------------------------------------------------------ */
 const FRIENDLY_ERROR = "O Tutor Teo está indisponível no momento. Tente novamente em instantes.";
@@ -96,7 +138,13 @@ export default async function handler(req, res) {
     const body = req.body;
     let messages;
 
-    if (typeof body?.prompt === "string") {
+    if (body?.devotional === true) {
+      const date = String(body.date || "");
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || Number.isNaN(Date.parse(date))) {
+        return res.status(400).json({ error: "Data inválida." });
+      }
+      messages = [{ role: "user", content: buildDevotionalPrompt(date) }];
+    } else if (typeof body?.prompt === "string") {
       messages = [{ role: "user", content: body.prompt }];
     } else if (Array.isArray(body?.messages)) {
       messages = body.messages;
