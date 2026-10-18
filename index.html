@@ -190,6 +190,21 @@
     .reader-head .font-btn{border:1px solid var(--line);background:#fff;color:var(--navy);border-radius:9px;min-width:36px;min-height:36px;font-weight:700;cursor:pointer;font-family:inherit}
     .reader-body{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:18px max(clamp(16px,5vw,80px),env(safe-area-inset-right)) calc(28px + env(safe-area-inset-bottom)) max(clamp(16px,5vw,80px),env(safe-area-inset-left));font-size:var(--message-font-size,16px);line-height:1.7;color:var(--ink)}
     .reader-body .message-content{max-width:900px;margin:0 auto}
+    /* Estilo de estudo (ficha local) */
+    .profile-bar{margin-top:10px;padding:9px 14px}
+    .profile-bar small{display:block}
+    @media (orientation:landscape) and (max-height:600px){.profile-bar small{display:none}}
+    .pf-text{margin-bottom:12px}
+    .pf-list{margin:0 0 14px 22px}
+    .pf-list li{margin-bottom:6px;padding-left:2px}
+    .pf-card{margin:12px 0;padding:12px 14px;background:var(--gold-soft);border:1px solid #e6d88f;border-radius:12px}
+    .pf-card dt{margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--muted)}
+    .pf-card dt:first-child{margin-top:0}
+    .pf-card dd{margin:2px 0 0;overflow-wrap:anywhere}
+    .pf-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+    .pf-btn{border:0;border-radius:10px;padding:10px 16px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;background:var(--navy);color:#fff}
+    .pf-btn.ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
+    .pf-btn.danger{background:transparent;color:#b4483b;border:1px solid rgba(180,72,59,.4)}
     @media (prefers-reduced-motion:reduce){*,body::before{animation:none!important;transition:none!important}}
   </style>
 </head>
@@ -205,6 +220,9 @@
         <button type="button" id="clear-chat" title="Limpar conversa" aria-label="Limpar conversa">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
         </button>
+        <button type="button" id="profile-open" title="Meu estilo de estudo" aria-label="Meu estilo de estudo">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/></svg>
+        </button>
         <button type="button" id="font-down" title="Diminuir letras" aria-label="Diminuir letras">A−</button>
         <span class="font-label" id="font-size-label">16px</span>
         <button type="button" id="font-up" title="Aumentar letras" aria-label="Aumentar letras">A+</button>
@@ -216,6 +234,12 @@
     <button type="button" class="daily-bar" id="daily-open" aria-haspopup="dialog">
       <span class="daily-ico" aria-hidden="true">📖</span>
       <span><b>Mensagem do dia</b><small>Devocional com aplicação prática para hoje</small></span>
+      <span class="daily-go" aria-hidden="true">›</span>
+    </button>
+
+    <button type="button" class="daily-bar profile-bar" id="profile-bar" aria-haspopup="dialog">
+      <span class="daily-ico" aria-hidden="true">🎓</span>
+      <span><b>Estudo personalizado</b><small id="profile-bar-status">Adapte as respostas ao seu jeito de estudar</small></span>
       <span class="daily-go" aria-hidden="true">›</span>
     </button>
 
@@ -243,7 +267,7 @@
       <textarea id="user-input" rows="1" maxlength="5000" placeholder="Digite sua pergunta..." aria-label="Sua pergunta" required></textarea>
       <button type="submit" id="send-button" class="send-btn"><span class="lbl">Enviar</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg></button>
     </form>
-    <p class="footnote">Respostas geradas por inteligência artificial; confira pontos importantes com seu professor. Suas conversas ficam salvas só neste aparelho.</p>
+    <p class="footnote">Respostas geradas por inteligência artificial; confira pontos importantes com seu professor. Suas conversas (e, se você ativar, sua ficha de estudo) ficam salvas só neste aparelho.</p>
   </main>
 
   <div class="reader-overlay" id="reader-overlay" hidden>
@@ -258,6 +282,19 @@
         </div>
       </div>
       <div class="reader-body"><div class="message-content" id="reader-content"></div></div>
+    </div>
+  </div>
+
+  <div class="daily-overlay" id="profile-overlay" hidden>
+    <div class="daily-modal" role="dialog" aria-modal="true" aria-labelledby="profile-title">
+      <div class="daily-head">
+        <span aria-hidden="true" style="font-size:22px">🎓</span>
+        <h2 id="profile-title">Meu estilo de estudo</h2>
+        <div class="daily-tools">
+          <button type="button" class="daily-close" id="profile-close" aria-label="Fechar">×</button>
+        </div>
+      </div>
+      <div class="daily-body" id="profile-body"></div>
     </div>
   </div>
 
@@ -643,6 +680,178 @@
       try { navigator.clipboard.writeText(tmp.textContent || ""); } catch (_) {}
     });
 
+    /* ---------------- Estilo de estudo (ficha só neste aparelho) ---------------- */
+    const PROFILE_KEY = "tutorTeoStudyProfile_v1";
+    const CONSENT_KEY = "tutorTeoProfileConsent_v1";
+    const PROFILE_FIRST_AT = 3;  // primeira ficha depois de 3 perguntas
+    const PROFILE_EVERY = 6;     // depois, atualiza a cada 6 perguntas
+    const profileOverlay = document.getElementById("profile-overlay");
+    const profileBody = document.getElementById("profile-body");
+    const profileClose = document.getElementById("profile-close");
+    const LEVEL_LABEL = { iniciante: "Iniciante", intermediario: "Intermediário", avancado: "Avançado" };
+    const FORMAT_LABEL = { curta: "Respostas curtas e diretas", equilibrada: "Respostas equilibradas", aprofundada: "Respostas aprofundadas" };
+
+    let profileConsent = null;   // null = ainda não decidiu, "yes" ou "no"
+    let studyProfile = null;
+    let profileCount = 0;        // perguntas desde a última atualização
+    let profileUpdating = false;
+    try {
+      const c = localStorage.getItem(CONSENT_KEY);
+      if (c === "yes" || c === "no") profileConsent = c;
+      const s = JSON.parse(localStorage.getItem(PROFILE_KEY) || "null");
+      if (s && typeof s === "object") {
+        if (s.data && typeof s.data === "object" && !Array.isArray(s.data)) studyProfile = s.data;
+        profileCount = Number(s.count) || 0;
+      }
+    } catch (_) {}
+
+    function saveProfileState() {
+      try {
+        if (studyProfile || profileCount) localStorage.setItem(PROFILE_KEY, JSON.stringify({ data: studyProfile, count: profileCount }));
+        else localStorage.removeItem(PROFILE_KEY);
+      } catch (_) {}
+    }
+    function refreshProfileBar() {
+      const s = document.getElementById("profile-bar-status");
+      if (!s) return;
+      s.textContent = profileConsent === "yes" ? "Ativado · toque para ver sua ficha"
+        : profileConsent === "no" ? "Desativado · toque para ativar"
+        : "Adapte as respostas ao seu jeito de estudar";
+    }
+    function setConsent(value) {
+      profileConsent = value;
+      try { localStorage.setItem(CONSENT_KEY, value); } catch (_) {}
+      refreshProfileBar();
+    }
+    function clearProfile() { studyProfile = null; profileCount = 0; saveProfileState(); }
+
+    async function updateProfileInBackground() {
+      if (profileConsent !== "yes" || profileUpdating) return;
+      profileUpdating = true;
+      try {
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            profileUpdate: true,
+            profile: studyProfile,
+            messages: conversation.slice(-12).map(({ role, content }) => ({ role, content }))
+          })
+        });
+        if (!response.ok) return;
+        const data = await response.json();
+        // Se o usuário desativou ou apagou enquanto isso rodava, descarta o resultado.
+        if (profileConsent !== "yes") return;
+        if (data && data.perfil && typeof data.perfil === "object") {
+          studyProfile = data.perfil;
+          saveProfileState();
+        }
+      } catch (_) {
+        /* silencioso: tenta de novo mais adiante */
+      } finally {
+        profileUpdating = false;
+      }
+    }
+    function maybeUpdateProfile() {
+      if (profileConsent !== "yes") return;
+      profileCount += 1;
+      if (profileCount >= (studyProfile ? PROFILE_EVERY : PROFILE_FIRST_AT)) {
+        profileCount = 0;
+        saveProfileState();
+        updateProfileInBackground();
+      } else {
+        saveProfileState();
+      }
+    }
+
+    function el(tag, text, cls) {
+      const node = document.createElement(tag);
+      if (text != null) node.textContent = text;
+      if (cls) node.className = cls;
+      return node;
+    }
+    function pfButton(label, cls, onClick) {
+      const b = el("button", label, "pf-btn" + (cls ? " " + cls : ""));
+      b.type = "button";
+      b.addEventListener("click", onClick);
+      return b;
+    }
+
+    function renderProfileModal() {
+      profileBody.replaceChildren();
+      const firstTime = profileConsent === null;
+      profileClose.hidden = firstTime && profileForced;
+      document.getElementById("profile-title").textContent = firstTime ? "Estudo personalizado" : "Meu estilo de estudo";
+      const actions = el("div", null, "pf-actions");
+
+      if (firstTime) {
+        profileBody.appendChild(el("p", "O Tutor Teo pode ajustar o nível, a profundidade e o tom das respostas ao seu jeito de estudar. Para isso, ele guarda uma ficha curta neste aparelho, criada a partir das suas perguntas: nível, temas de interesse, objetivo e como você prefere aprender.", "pf-text"));
+        const list = el("ul", null, "pf-list");
+        [
+          "A ficha fica só no seu aparelho. Não há cadastro, login nem banco de dados.",
+          "Quando está ativada, ela é enviada junto com a sua conversa ao servidor e ao provedor de IA, para adaptar cada resposta. Isso já acontece com as suas perguntas.",
+          "Ela foi feita para registrar apenas o seu estudo, não a sua vida pessoal.",
+          "Você pode ver, apagar ou desativar quando quiser, no botão 🎓 do topo."
+        ].forEach((t) => list.appendChild(el("li", t)));
+        profileBody.appendChild(list);
+        actions.appendChild(pfButton("Ativar", "", () => { setConsent("yes"); closeProfile(); }));
+        actions.appendChild(pfButton("Agora não", "ghost", () => { setConsent("no"); closeProfile(); }));
+      } else if (profileConsent === "yes") {
+        profileBody.appendChild(el("p", "A personalização está ativada. A ficha abaixo é criada a partir das suas perguntas e fica só neste aparelho.", "pf-text"));
+        const p = studyProfile;
+        const rows = p ? [
+          ["Nível", LEVEL_LABEL[p.nivel]],
+          ["Formato preferido", FORMAT_LABEL[p.formato]],
+          ["Tom", p.tom],
+          ["Temas de interesse", Array.isArray(p.interesses) ? p.interesses.join(", ") : ""],
+          ["Objetivo", p.objetivo],
+          ["Como aprende melhor", p.observacoes]
+        ].filter((r) => r[1]) : [];
+        if (rows.length) {
+          const dl = el("dl", null, "pf-card");
+          rows.forEach(([k, v]) => { dl.appendChild(el("dt", k)); dl.appendChild(el("dd", String(v))); });
+          profileBody.appendChild(dl);
+        } else {
+          profileBody.appendChild(el("p", "Ainda não há ficha. Ela aparece depois de algumas perguntas.", "pf-text"));
+        }
+        if (rows.length) {
+          actions.appendChild(pfButton("Apagar ficha", "danger", () => {
+            if (confirm("Apagar a ficha de estudo? Ela será criada de novo conforme você conversar.")) { clearProfile(); renderProfileModal(); }
+          }));
+        }
+        actions.appendChild(pfButton("Desativar e apagar", "danger", () => {
+          if (confirm("Desativar a personalização e apagar a ficha deste aparelho?")) { setConsent("no"); clearProfile(); renderProfileModal(); }
+        }));
+        actions.appendChild(pfButton("Fechar", "ghost", closeProfile));
+      } else {
+        profileBody.appendChild(el("p", "A personalização está desativada. O Tutor Teo responde sem usar uma ficha de estudo. Se ativar, ele passa a guardar neste aparelho uma ficha curta com seu nível, temas de interesse e jeito de aprender.", "pf-text"));
+        actions.appendChild(pfButton("Ativar", "", () => { setConsent("yes"); renderProfileModal(); }));
+        actions.appendChild(pfButton("Fechar", "ghost", closeProfile));
+      }
+      profileBody.appendChild(actions);
+    }
+    // "forced" = aviso automático da primeira vez: exige uma escolha.
+    // Aberto pela barra ou pelo botão do topo, pode ser fechado sem escolher.
+    let profileForced = false;
+    function openProfile(forced) {
+      profileForced = forced === true;
+      renderProfileModal();
+      profileOverlay.hidden = false;
+      const first = profileBody.querySelector("button");
+      if (first) first.focus();
+    }
+    function closeProfile() {
+      if (profileForced && profileConsent === null) return;
+      profileOverlay.hidden = true;
+    }
+    document.getElementById("profile-bar")?.addEventListener("click", () => openProfile(false));
+    document.getElementById("profile-open")?.addEventListener("click", () => openProfile(false));
+    profileClose.addEventListener("click", closeProfile);
+    profileOverlay.addEventListener("click", (e) => { if (e.target === profileOverlay) closeProfile(); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !profileOverlay.hidden) closeProfile(); });
+    refreshProfileBar();
+    if (profileConsent === null) setTimeout(() => openProfile(true), 600);
+
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
       if ("speechSynthesis" in window) window.speechSynthesis.cancel();
@@ -669,7 +878,11 @@
         const response = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ studentName, messages: conversation.slice(-12).map(({ role, content }) => ({ role, content })) })
+          body: JSON.stringify({
+            studentName,
+            profile: profileConsent === "yes" ? studyProfile : null,
+            messages: conversation.slice(-12).map(({ role, content }) => ({ role, content }))
+          })
         });
 
         let data;
@@ -681,6 +894,7 @@
         conversation.push({ role: "assistant", content: data.resposta, time: getCurrentTime() });
         saveHistory();
         appendMessage(data.resposta, "ia");
+        maybeUpdateProfile();
       } catch (error) {
         console.error("Erro ao enviar:", error);
         appendMessage(error.message || "Erro de conexão. Verifique sua internet e tente novamente.", "ia");
