@@ -764,23 +764,25 @@
       profileBody.replaceChildren();
       const firstTime = profileConsent === null;
       profileClose.hidden = firstTime && profileForced;
-      document.getElementById("profile-title").textContent = firstTime ? "Estudo personalizado" : "Meu estilo de estudo";
+      document.getElementById("profile-title").textContent = "Estudo personalizado";
       const actions = el("div", null, "pf-actions");
 
+      // A mensagem completa aparece sempre, no aviso inicial e ao tocar no botão 🎓.
+      profileBody.appendChild(el("p", "O Tutor Teo pode ajustar o nível, a profundidade e o tom das respostas ao seu jeito de estudar. Para isso, ele guarda uma ficha curta neste aparelho, criada a partir das suas perguntas: nível, temas de interesse, objetivo e como você prefere aprender.", "pf-text"));
+      const list = el("ul", null, "pf-list");
+      [
+        "A ficha fica só no seu aparelho. Não há cadastro, login nem banco de dados.",
+        "Quando está ativada, ela é enviada junto com a sua conversa ao servidor e ao provedor de IA, para adaptar cada resposta. Isso já acontece com as suas perguntas.",
+        "Ela foi feita para registrar apenas o seu estudo, não a sua vida pessoal.",
+        "Você pode ver, apagar ou desativar quando quiser, no botão 🎓 do topo."
+      ].forEach((t) => list.appendChild(el("li", t)));
+      profileBody.appendChild(list);
+
       if (firstTime) {
-        profileBody.appendChild(el("p", "O Tutor Teo pode ajustar o nível, a profundidade e o tom das respostas ao seu jeito de estudar. Para isso, ele guarda uma ficha curta neste aparelho, criada a partir das suas perguntas: nível, temas de interesse, objetivo e como você prefere aprender.", "pf-text"));
-        const list = el("ul", null, "pf-list");
-        [
-          "A ficha fica só no seu aparelho. Não há cadastro, login nem banco de dados.",
-          "Quando está ativada, ela é enviada junto com a sua conversa ao servidor e ao provedor de IA, para adaptar cada resposta. Isso já acontece com as suas perguntas.",
-          "Ela foi feita para registrar apenas o seu estudo, não a sua vida pessoal.",
-          "Você pode ver, apagar ou desativar quando quiser, no botão 🎓 do topo."
-        ].forEach((t) => list.appendChild(el("li", t)));
-        profileBody.appendChild(list);
         actions.appendChild(pfButton("Ativar", "", () => { setConsent("yes"); closeProfile(); }));
         actions.appendChild(pfButton("Agora não", "ghost", () => { setConsent("no"); closeProfile(); }));
       } else if (profileConsent === "yes") {
-        profileBody.appendChild(el("p", "A personalização está ativada. A ficha abaixo é criada a partir das suas perguntas e fica só neste aparelho.", "pf-text"));
+        profileBody.appendChild(el("p", "Personalização ativada. Sua ficha atual:", "pf-text"));
         const p = studyProfile;
         const rows = p ? [
           ["Nível", LEVEL_LABEL[p.nivel]],
@@ -807,7 +809,7 @@
         }));
         actions.appendChild(pfButton("Fechar", "ghost", closeProfile));
       } else {
-        profileBody.appendChild(el("p", "A personalização está desativada. O Tutor Teo responde sem usar uma ficha de estudo. Se ativar, ele passa a guardar neste aparelho uma ficha curta com seu nível, temas de interesse e jeito de aprender.", "pf-text"));
+        profileBody.appendChild(el("p", "Personalização desativada. O Tutor Teo responde sem usar uma ficha de estudo.", "pf-text"));
         actions.appendChild(pfButton("Ativar", "", () => { setConsent("yes"); renderProfileModal(); }));
         actions.appendChild(pfButton("Fechar", "ghost", closeProfile));
       }
