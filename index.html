@@ -191,9 +191,6 @@
     .reader-body{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:18px max(clamp(16px,5vw,80px),env(safe-area-inset-right)) calc(28px + env(safe-area-inset-bottom)) max(clamp(16px,5vw,80px),env(safe-area-inset-left));font-size:var(--message-font-size,16px);line-height:1.7;color:var(--ink)}
     .reader-body .message-content{max-width:900px;margin:0 auto}
     /* Estilo de estudo (ficha local) */
-    .profile-bar{margin-top:10px;padding:9px 14px}
-    .profile-bar small{display:block}
-    @media (orientation:landscape) and (max-height:600px){.profile-bar small{display:none}}
     .pf-text{margin-bottom:12px}
     .pf-list{margin:0 0 14px 22px}
     .pf-list li{margin-bottom:6px;padding-left:2px}
@@ -234,12 +231,6 @@
     <button type="button" class="daily-bar" id="daily-open" aria-haspopup="dialog">
       <span class="daily-ico" aria-hidden="true">📖</span>
       <span><b>Mensagem do dia</b><small>Devocional com aplicação prática para hoje</small></span>
-      <span class="daily-go" aria-hidden="true">›</span>
-    </button>
-
-    <button type="button" class="daily-bar profile-bar" id="profile-bar" aria-haspopup="dialog">
-      <span class="daily-ico" aria-hidden="true">🎓</span>
-      <span><b>Estudo personalizado</b><small id="profile-bar-status">Adapte as respostas ao seu jeito de estudar</small></span>
       <span class="daily-go" aria-hidden="true">›</span>
     </button>
 
@@ -711,17 +702,9 @@
         else localStorage.removeItem(PROFILE_KEY);
       } catch (_) {}
     }
-    function refreshProfileBar() {
-      const s = document.getElementById("profile-bar-status");
-      if (!s) return;
-      s.textContent = profileConsent === "yes" ? "Ativado · toque para ver sua ficha"
-        : profileConsent === "no" ? "Desativado · toque para ativar"
-        : "Adapte as respostas ao seu jeito de estudar";
-    }
     function setConsent(value) {
       profileConsent = value;
       try { localStorage.setItem(CONSENT_KEY, value); } catch (_) {}
-      refreshProfileBar();
     }
     function clearProfile() { studyProfile = null; profileCount = 0; saveProfileState(); }
 
@@ -844,12 +827,10 @@
       if (profileForced && profileConsent === null) return;
       profileOverlay.hidden = true;
     }
-    document.getElementById("profile-bar")?.addEventListener("click", () => openProfile(false));
     document.getElementById("profile-open")?.addEventListener("click", () => openProfile(false));
     profileClose.addEventListener("click", closeProfile);
     profileOverlay.addEventListener("click", (e) => { if (e.target === profileOverlay) closeProfile(); });
     document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !profileOverlay.hidden) closeProfile(); });
-    refreshProfileBar();
     if (profileConsent === null) setTimeout(() => openProfile(true), 600);
 
     form.addEventListener("submit", async (event) => {
